@@ -31,6 +31,7 @@ class EditFile extends EditRecord
         $fileNumber = $data["number"];
         $data['number'] = substr($fileNumber, 0, 4);
         $data['registration_year'] = substr($fileNumber, 4);
+        $data['full_number'] = $data['number'] . "/" . $data['registration_year'];
         
         return $data;
     }

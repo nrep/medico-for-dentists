@@ -100,8 +100,7 @@ class InvoicesReport extends Page implements HasTable
                     }
 
                     return $totalAmount;
-                })
-                ->searchable(),
+                }),
             TextColumn::make('insurance_pays')
                 ->label('Insurance')
                 ->formatStateUsing(function (InvoicePayment $record) {

@@ -20,7 +20,8 @@ class File extends Model
         'location',
         'legacy_db_member_id',
         'created_at',
-        'updated_at'
+        'updated_at',
+        'full_number'
     ];
 
     protected $casts = [

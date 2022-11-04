@@ -252,36 +252,40 @@ class FileResource extends Resource
     {
         return $table
             ->columns([
-                    TextColumn::make('number')
-                        ->formatStateUsing(fn (File $record): string => sprintf("%04d", substr($record->number, 0)) . "/" . $record->registration_year)
-                        ->searchable()
-                        ->sortable(),
-                    TextColumn::make('names')
-                        ->searchable()
-                        ->sortable()
-                        ->wrap(),
-                    TextColumn::make('sex')
-                        ->searchable()
-                        ->sortable(),
-                    TextColumn::make('year_of_birth')
-                        ->searchable()
-                        ->sortable(),
-                    TextColumn::make('phone_number')
-                        ->sortable()
-                        ->searchable(),
-                    TagsColumn::make("linkedInsurances.insurance_name")
-                        ->label('Insurances')
-                        ->searchable(query: function (Builder $query, string $search): Builder {
-                            // dd($query->whereRelation('linkedInsurances', fn (Builder $query) => $query->whereRelation('insurance', 'name', 'like', "%{$search}%"))->toBase()->toSql());
-                            return $query
-                                ->whereRelation('linkedInsurances', fn (Builder $query) => $query->whereRelation('insurance', 'name', 'like', "%{$search}%"));
-                        }),
-                        TextColumn::make('emergencyContacts.name')
-                            ->searchable()
-                            ->toggledHiddenByDefault(),
-                        TextColumn::make('emergencyContacts.phone_number')
-                            ->searchable()
-                            ->toggledHiddenByDefault()
+                TextColumn::make('number')
+                    ->formatStateUsing(fn (File $record): string => sprintf("%04d", substr($record->number, 0)) . "/" . $record->registration_year)
+                    ->searchable()
+                    ->sortable()
+                    ->hidden(),
+                TextColumn::make('full_number')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('names')
+                    ->searchable()
+                    ->sortable()
+                    ->wrap(),
+                TextColumn::make('sex')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('year_of_birth')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('phone_number')
+                    ->sortable()
+                    ->searchable(),
+                TagsColumn::make("linkedInsurances.insurance_name")
+                    ->label('Insurances')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        // dd($query->whereRelation('linkedInsurances', fn (Builder $query) => $query->whereRelation('insurance', 'name', 'like', "%{$search}%"))->toBase()->toSql());
+                        return $query
+                            ->whereRelation('linkedInsurances', fn (Builder $query) => $query->whereRelation('insurance', 'name', 'like', "%{$search}%"));
+                    }),
+                TextColumn::make('emergencyContacts.name')
+                    ->searchable()
+                    ->toggledHiddenByDefault(),
+                TextColumn::make('emergencyContacts.phone_number')
+                    ->searchable()
+                    ->toggledHiddenByDefault()
             ])
             ->filters([
                 Filter::make('Insurance')

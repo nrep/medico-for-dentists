@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger("file_id");
             $table->string("name")->nullable();
-            $table->string("phone_number");
+            $table->string("phone_number")->nullable();
             $table->boolean("enabled")->default(true);
             $table->softDeletes();
             $table->timestamps();
