@@ -4,11 +4,15 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
+use Carbon\Carbon;
 use Closure;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
@@ -162,5 +166,77 @@ class InsurancesReports extends Page implements HasTable
     protected function getTableRecordUrlUsing(): Closure
     {
         return fn (Model $record): string => InvoiceResource::getUrl('view', $record->id);
+    }
+
+    protected function getTableFilters(): array
+    {
+        $periods = [
+            'today' => 'Today',
+            'weekly' => 'This Week',
+            'monthly' => 'This Month',
+            'custom' => 'Custom'
+        ];
+
+        return [
+            Filter::make('period')
+                ->form([
+                    Select::make('period')
+                        ->options($periods)
+                        ->default('monthly')
+                        ->searchable()
+                        ->reactive()
+                        ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
+                            switch ($state) {
+                                case 'today':
+                                    $set('since', date('Y-m-d'));
+                                    $set('until', date('Y-m-d'));
+                                    break;
+                                case 'weekly':
+                                    $set('since', Carbon::parse(date('Y-m-d'))->startOfWeek(1));
+                                    $set('until', Carbon::parse(date('Y-m-d'))->endOfWeek(1));
+                                    break;
+                                case 'monthly':
+                                    $set('since', Carbon::parse(date('Y-m-d'))->startOfMonth());
+                                    $set('until', Carbon::parse(date('Y-m-d'))->endOfMonth()->subDay());
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+                        }),
+                    DatePicker::make('since')
+                        ->default(Carbon::parse(date('Y-m-d'))->startOfMonth()),
+                    DatePicker::make('until')
+                        ->default(Carbon::parse(date('Y-m-d'))->endOfMonth()),
+                ])
+                ->indicateUsing(function (array $data) use ($periods): array {
+                    $indicators = [];
+
+                    if ($data['period'] ?? null) {
+                        $indicators['period'] = 'Period: ' . $periods[$data['period']];
+                    }
+
+                    if ($data['since'] ?? null) {
+                        $indicators['since'] = 'Created since ' . Carbon::parse($data['since'])->toFormattedDateString();
+                    }
+
+                    if ($data['until'] ?? null) {
+                        $indicators['until'] = 'Until ' . Carbon::parse($data['until'])->toFormattedDateString();
+                    }
+
+                    return $indicators;
+                })
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['since'],
+                            fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
+                        )
+                        ->when(
+                            $data['until'],
+                            fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
+                        );
+                }),
+        ];
     }
 }
