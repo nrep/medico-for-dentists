@@ -122,6 +122,22 @@ class SessionResource extends Resource
                 // Tables\Columns\TagsColumn::make('specific_data'),
             ])
             ->filters([
+                Filter::make('date')
+                    ->form([
+                        Forms\Components\DatePicker::make('date')
+                            ->default(now()),
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['date']) {
+                            return null;
+                        }
+    
+                        return 'Received on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+                        return $query->where('date', $data['date']);
+                    }),
                 Filter::make('Insurance')
                     ->form([
                         Select::make('insurance_id')
@@ -129,20 +145,17 @@ class SessionResource extends Resource
                             ->options(Insurance::all()->pluck('name', 'id'))
                             ->searchable(),
                     ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['insurance_id']) {
+                            return null;
+                        }
+    
+                        return 'Insurance: ' . Insurance::find($data['insurance_id'])?->name;
+                    })
                     ->query(function (Builder $query, array $data): Builder {
                         return isset($data['insurance_id']) ? $query->whereRelation('fileInsurance', 'insurance_id', $data['insurance_id']) : $query;
                     }),
-                Filter::make('date')
-                    ->indicator('Date')
-                    ->form([
-                        Forms\Components\DatePicker::make('date')
-                            ->default(now()),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
-                        return $query->where('date', $data['date']);
-                    }),
-                Tables\Filters\TrashedFilter::make(),
+                // Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Action::make('invoice')
