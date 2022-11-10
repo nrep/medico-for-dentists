@@ -186,6 +186,13 @@ class InvoicesReport extends Page implements HasTable
                     DatePicker::make('date')
                         ->default(now()),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['date']) {
+                        return null;
+                    }
+
+                    return 'Received at ' . Carbon::parse($data['date'])->toFormattedDateString();
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
                     return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
@@ -197,6 +204,13 @@ class InvoicesReport extends Page implements HasTable
                         ->options(Insurance::all()->pluck('name', 'id'))
                         ->searchable(),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['insurance_id']) {
+                        return null;
+                    }
+
+                    return 'Insurance: ' . Insurance::find($data['insurance_id'])?->name;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['insurance_id'])) {
                         $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', fn (Builder $query) => $query->whereRelation('discount', 'insurance_id', $data['insurance_id'])));
@@ -207,10 +221,17 @@ class InvoicesReport extends Page implements HasTable
                 ->form([
                     Select::make('done_by')
                         ->label("Done By")
-                        ->options(User::whereRelation('roles', 'name', 'Receptionist')->pluck('name', 'id'))
+                        ->options(User::whereRelation('roles', 'name', 'Cashier')->pluck('name', 'id'))
                         ->searchable()
                         ->default(auth()->user()->hasRole("Cashier") ? auth()->id() : null),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['done_by']) {
+                        return null;
+                    }
+
+                    return 'Paid to ' . User::find($data['done_by'])?->name;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['done_by'])) {
                         $query->where('invoice_payments.done_by', $data['done_by']);
@@ -225,6 +246,13 @@ class InvoicesReport extends Page implements HasTable
                         ->options(PaymentMean::all()->pluck('name', 'id'))
                         ->searchable(),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['payment_mean_id']) {
+                        return null;
+                    }
+
+                    return 'Paid via ' . PaymentMean::find($data['payment_mean_id'])?->name;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['payment_mean_id'])) {
                         $query->where('payment_mean_id', $data['payment_mean_id']);
@@ -241,6 +269,13 @@ class InvoicesReport extends Page implements HasTable
                         )->get()->pluck('names', 'id'))
                         ->searchable(),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['doctor_id']) {
+                        return null;
+                    }
+
+                    return 'Consulted by ' . Employee::find($data['doctor_id'])?->names;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['doctor_id'])) {
                         $query->whereRelation(
