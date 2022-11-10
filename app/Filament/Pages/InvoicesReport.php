@@ -65,7 +65,7 @@ class InvoicesReport extends Page implements HasTable
             ->join('invoice_items', 'invoice_days.id', 'invoice_items.invoice_day_id')
             ->join('users AS u', 'invoice_items.done_by', 'u.id')
             ->join('employees', 'invoice_days.doctor_id', 'employees.id')
-            ->when(auth()->user()->hasRole('Cashier'), fn (Builder $query) => $query->where('invoice_payments.done_by', auth()->id()))
+            ->when(auth()->user()->hasRole('Cashier') && !auth()->user()->hasAnyRole(['Admin', 'Data Manager']), fn (Builder $query) => $query->where('invoice_payments.done_by', auth()->id()))
             ->groupBy('invoice_id');
     }
 
@@ -263,7 +263,7 @@ class InvoicesReport extends Page implements HasTable
         ];
     }
 
-    public function getCachedTableHeaderActions(): array
+    /* public function getCachedTableHeaderActions(): array
     {
         return [
             ExportAction::make()
@@ -271,7 +271,7 @@ class InvoicesReport extends Page implements HasTable
                     ExcelExport::make('table')->fromTable()
                 ]),
         ];
-    }
+    } */
 
     protected function getTableRecordUrlUsing(): Closure
     {
