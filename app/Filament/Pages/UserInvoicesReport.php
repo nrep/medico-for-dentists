@@ -158,6 +158,13 @@ class UserInvoicesReport extends Page implements HasTable
                     DatePicker::make('date')
                         ->default(now()),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['date']) {
+                        return null;
+                    }
+
+                    return 'Received on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
                     return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
@@ -169,6 +176,13 @@ class UserInvoicesReport extends Page implements HasTable
                         ->options(Insurance::all()->pluck('name', 'id'))
                         ->searchable(),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['insurance_id']) {
+                        return null;
+                    }
+
+                    return 'Insurance: ' . Insurance::find($data['insurance_id'])?->name;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['insurance_id'])) {
                         $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', fn (Builder $query) => $query->whereRelation('discount', 'insurance_id', $data['insurance_id'])));
@@ -182,6 +196,13 @@ class UserInvoicesReport extends Page implements HasTable
                         ->options(PaymentMean::all()->pluck('name', 'id'))
                         ->searchable(),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['payment_mean_id']) {
+                        return null;
+                    }
+
+                    return 'Paid via ' . PaymentMean::find($data['payment_mean_id'])?->name;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     // dd($data);
                     if (isset($data['payment_mean_id'])) {

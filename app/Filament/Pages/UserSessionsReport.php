@@ -90,6 +90,13 @@ class UserSessionsReport extends Page implements HasTable
                     DatePicker::make('date')
                         ->default(now()),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['date']) {
+                        return null;
+                    }
+
+                    return 'Received on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
                     return $query->where('date', $data['date']);
@@ -101,6 +108,13 @@ class UserSessionsReport extends Page implements HasTable
                         ->options(Insurance::all()->pluck('name', 'id'))
                         ->searchable(),
                 ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['insurance_id']) {
+                        return null;
+                    }
+
+                    return 'Insurance: ' . Insurance::find($data['insurance_id'])?->name;
+                })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['insurance_id'])) {
                         $query->whereRelation('discount', 'insurance_id', $data['insurance_id']);
