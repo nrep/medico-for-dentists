@@ -170,6 +170,7 @@ class InvoicesReport extends Page implements HasTable
 
         foreach ($paymentMeans as $paymentMean) {
             $columns[] = TextColumn::make($paymentMean->name)
+                ->label($paymentMean->name)
                 ->getStateUsing(fn (InvoicePayment $record) => $record->invoice->payments()->where('payment_mean_id', $paymentMean->id)->sum('amount'))
                 ->toggledHiddenByDefault();
         }
