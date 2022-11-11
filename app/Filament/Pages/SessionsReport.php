@@ -10,6 +10,8 @@ use Carbon\CarbonInterface;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -66,6 +68,11 @@ class SessionsReport extends Page implements HasTable
             TextColumn::make('fileInsurance.insurance.name')
                 ->searchable()
                 ->sortable(),
+            TagsColumn::make('status')
+                ->getStateUsing(function (Session $record) {
+                    return $record?->invoice?->payments()->count('id') > 0 ? 'Billed' : 'Pending';
+                })
+                ->separator(','),
             TextColumn::make('created_at')
                 ->date()
                 ->formatStateUsing(fn ($state) => Carbon::parse($state)->diffForHumans(Carbon::now(), CarbonInterface::DIFF_RELATIVE_TO_NOW)),
@@ -135,6 +142,16 @@ class SessionsReport extends Page implements HasTable
                     return $query;
                 })
                 ->hidden(!auth()->user()->hasAnyRole(["Admin", "Data Manager"])),
+            Filter::make('pending')
+                ->query(function (Builder $query): Builder {
+                    return $query->whereRelation('invoice', fn (Builder $query) => $query->whereHas('payments', null, '==', 0));
+                })
+                ->toggle(),
+            Filter::make('billed')
+                ->query(function (Builder $query): Builder {
+                    return $query->whereRelation('invoice', fn (Builder $query) => $query->whereHas('payments', null, '>', 0));
+                })
+                ->toggle()
         ];
     }
 
