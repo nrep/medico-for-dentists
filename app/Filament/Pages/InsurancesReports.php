@@ -80,11 +80,11 @@ class InsurancesReports extends Page implements HasTable
                 ->sortable(),
             TextColumn::make('session.fileInsurance.specific_data.affiliate_name')
                 ->label("Affiliate's Names")
-                ->searchable()
+                // ->searchable()
                 ->sortable(),
             TextColumn::make('session.fileInsurance.specific_data.affiliate_affectation')
                 ->label("Affiliate's Affectation")
-                ->searchable()
+                // ->searchable()
                 ->sortable(),
             TextColumn::make('id')
                 ->label("Cost For Consultation 100%")
