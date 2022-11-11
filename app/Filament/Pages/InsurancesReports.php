@@ -59,12 +59,12 @@ class InsurancesReports extends Page implements HasTable
                 ->sortable(),
             TextColumn::make('session.specific_data.voucher_number')
                 ->label('Voucher Identification')
-                ->searchable()
+                // ->searchable()
                 ->sortable()
                 ->formatStateUsing(fn ($state) => "40440006/" . $state . "/" . date('y')),
             TextColumn::make('session.fileInsurance.specific_data.member_number')
                 ->label("Beneficiary's Affiliation No")
-                ->searchable()
+                // ->searchable()
                 ->sortable(),
             TextColumn::make('session.fileInsurance.file.year_of_birth')
                 ->label("Beneficiary's Age")
