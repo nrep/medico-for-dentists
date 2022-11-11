@@ -300,7 +300,7 @@ class FileResource extends Resource
                         if (!$data['insurance_id']) {
                             return null;
                         }
-    
+
                         return 'Insurance: ' . Insurance::find($data['insurance_id'])?->name;
                     })
                     ->query(function (Builder $query, array $data): Builder {
@@ -323,13 +323,47 @@ class FileResource extends Resource
                                         ->default(Carbon::now()),
                                     Select::make('file_insurance_id')
                                         ->label('Insurance')
-                                        ->options(function (Model $record) {
-                                            return $record->linkedInsurances->pluck('insurance.name', 'id');
-                                        })
+                                        ->options($record->linkedInsurances->pluck('insurance.name', 'id'))
                                         ->searchable()
                                         ->required()
-                                        // ->default($record->linkedInsurances()->first()->id)
-                                        ->reactive()
+                                        ->default($record->linkedInsurances()->first()->id)
+                                        ->reactive(),
+                                    Select::make('discount_id')
+                                        ->label('Percentage to be paid (T.M)')
+                                        ->options(function (callable $get) {
+                                            if ($get('file_insurance_id')) {
+                                                return FileInsurance::find($get('file_insurance_id'))
+                                                    ->insurance
+                                                    ->discounts()
+                                                    ->pluck('display_name', 'id');
+                                            }
+                                            return [];
+                                        })
+                                        ->default($record->linkedInsurances()->first()->insurance->discounts()->first()->id)
+                                        ->required(true),
+                                    TextInput::make('specific_data.voucher_number')
+                                        ->prefix("40440006/")
+                                        ->suffix("/" . date('y'))
+                                        ->hidden(function (Closure $get) {
+                                            $bool = true;
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id == 4) {
+                                                    $bool = false;
+                                                }
+                                            }
+                                            return $bool;
+                                        })
+                                        ->required(function (Closure $get) {
+                                            $bool = false;
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id == 4) {
+                                                    $bool = true;
+                                                }
+                                            }
+                                            return $bool;
+                                        })
                                 ])
                                 ->columns(2)
                         ];
