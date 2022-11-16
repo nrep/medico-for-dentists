@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('sessions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger("file_insurance_id");
-            $table->unsignedBigInteger('discount_id');
+            $table->unsignedBigInteger('discount_id')->nullable();
             $table->date("date");
             $table->unsignedInteger("done_by");
             $table->json("specific_data")->nullable();

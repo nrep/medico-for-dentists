@@ -21,7 +21,7 @@ class EditInvoice extends EditRecord
 
     public function mount($record): void
     {
-        $this->session = Invoice::find($record)->session;
+        $this->session = Invoice::find($record)?->session;
         parent::mount($record);
     }
 

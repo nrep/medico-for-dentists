@@ -19,6 +19,7 @@ use Filament\Resources\Pages\EditRecord\Concerns\HasWizard;
 class EditChargeList extends EditRecord
 {
     use HasWizard;
+    
     protected static string $resource = ChargeListResource::class;
 
     protected function getActions(): array

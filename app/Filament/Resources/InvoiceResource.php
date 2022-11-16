@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InvoiceResource\Pages;
@@ -10,6 +11,7 @@ use App\Filament\Resources\InvoiceResource\Widgets\InvoiceTotalPrice;
 use App\Models\Charge;
 use App\Models\Employee;
 use App\Models\EmployeeEmployeeCategory;
+use App\Models\FileInsurance;
 use App\Models\Invoice;
 use App\Models\Session;
 use Carbon\Carbon;
@@ -48,7 +50,13 @@ class InvoiceResource extends Resource
 
     protected static ?string $modelLabel = 'bill';
 
+    protected static ?string $navigationGroup = 'Billing';
+
     protected static ?int $navigationSort = 5;
+
+    public $session;
+
+    protected $queryString = ['session'];
 
     public static function form(Form $form): Form
     {
@@ -61,7 +69,8 @@ class InvoiceResource extends Resource
                     ->schema([
                         DatePicker::make("date")
                             ->label('Date')
-                            ->required(),
+                            ->required()
+                            ->default(date('Y-m-d')),
                         Select::make('doctor_id')
                             ->label('Doctor')
                             ->options(function () {
@@ -79,6 +88,16 @@ class InvoiceResource extends Resource
                                     ->default(auth()->user()->id),
                                 Select::make('charge_id')
                                     ->label('Charge')
+                                    ->options(function ($livewire) {
+                                        return Charge::whereRelation('chargeListChargeType', function (Builder $query) use ($livewire) {
+                                            return $query->whereRelation('chargeList', function (Builder $query) use ($livewire) {
+                                                return $query->whereRelation('linkedInsurances', function (Builder $query) use ($livewire) {
+                                                    return $query->whereRelation('insurance', 'id', $livewire?->session->fileInsurance->insurance_id);
+                                                });
+                                            });
+                                        })
+                                            ->pluck('name', 'id');
+                                    })
                                     ->allowHtml()
                                     ->searchable()
                                     ->getSearchResultsUsing(function (string $search) {

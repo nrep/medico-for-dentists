@@ -58,39 +58,6 @@ class ViewInvoice extends ViewRecord
                     return true;
                 })
                 ->action('printInvonce'),
-            /* Action::make('payments')
-                ->icon('fas-money-bill-1')
-                ->color(function ($record) {
-                    if ($this->record->payments()->count('id') > 0) {
-                        return "secondary";
-                    }
-                    return "primary";
-                })
-                ->action(function (array $data): void {
-                    // dd($data);
-                })
-                ->form([
-                    Repeater::make('payments')
-                        ->relationship()
-                        ->schema([
-                            Select::make('payment_mean_id')
-                                ->label('Payment Mean')
-                                ->relationship('paymentMean', 'name')
-                                ->createOptionForm([
-                                    TextInput::make('name')
-                                        ->required(),
-                                ])
-                                ->options(PaymentMean::all()->pluck('name', 'id'))
-                                ->searchable()
-                                ->required()
-                                ->default(PaymentMean::all()->first() ? PaymentMean::all()->first()->id : null)
-                                ->reactive(),
-                            TextInput::make('amount')
-                                ->numeric()
-                                ->required()
-                        ])
-                        ->columns(2),
-                ]), */
             ActionGroup::make([
                 EditAction::make()
                     ->icon('heroicon-s-pencil')
