@@ -85,12 +85,12 @@
             {{-- {{ $this->form }} --}}
             <div id="print-js">
                 <x-filament::card>
-                    <div>POLYCLINIQUE MEDICALE LA PROVIDENCE</div>
-                    <div>Tel: 0784022096</div>
-                    <div>TIN: 106636995</div>
-                    <div>Invoice N&deg;: PROV-{{ sprintf('%06d', $record->session->id) }}</div>
-                    <div>Date: {{ date('d/m/Y', strtotime($record->session->date)) }}</div>
-                    <div>Names: {{ $record->session->fileInsurance->file->names }}</div>
+                    <div style="font-weight: bold">POLYCLINIQUE MEDICALE LA PROVIDENCE</div>
+                    <div><span style="font-weight: bold">Tel:</span> 0784022096</div>
+                    <div><span style="font-weight: bold">TIN:</span> 106636995</div>
+                    <div><span style="font-weight: bold">Invoice N&deg;:</span> PROV-{{ sprintf('%06d', $record->session->id) }}</div>
+                    <div><span style="font-weight: bold">Date:</span> {{ date('d/m/Y', strtotime($record->session->date)) }}</div>
+                    <div><span style="font-weight: bold">Names:</span> {{ $record->session->fileInsurance->file->names }}</div>
 
                     <table class="filament-tables-table w-full text-left rtl:text-right divide-y table-auto dark:divide-gray-700">
                         <thead>
@@ -117,7 +117,7 @@
                                 <td>{{ $item->charge->name }}</td>
                                 <td>{{ $item->sold_at }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>{{ $item->total_price }}</td>
+                                <td style="font-weight: bold">{{ $item->total_price }}</td>
                             </tr>
                             @endforeach
                             @endforeach
@@ -131,23 +131,35 @@
                             @endphp
                             <tr class="bg-gray-500/5">
                                 <th colspan="4">Total</th>
-                                <td>{{ $record->charges->sum('total_price') }}</td>
+                                <td style="font-weight: bold">{{ $record->charges->sum('total_price') }}</td>
                             </tr>
                             <tr class="bg-gray-500/550">
                                 <th colspan="4">Insurance</th>
-                                <td>{{ $insurancePays }}</td>
+                                <td style="font-weight: bold">{{ $insurancePays }}</td>
                             </tr>
                             <tr class="bg-gray-500/5">
                                 <th colspan="4">Patient</th>
-                                <td>{{ $patientPays }}</td>
+                                <td style="font-weight: bold">{{ $patientPays }}</td>
                             </tr>
                             <tr class="bg-gray-500/5">
                                 <th colspan="4">Paid</th>
-                                <td>{{ $record->payments()?->sum('amount') }}</td>
+                                <td style="font-weight: bold">{{ $record->payments()?->sum('amount') }}</td>
                             </tr>
                         </tfoot>
                     </table>
-                    {{ date('d/m/y', strtotime($record->session->date)) }}
+                    @php
+                        $doneBy = "";
+                        foreach ($record->payments as $key => $payment) {
+                            $doneBy = $payment->recordedBy->name;
+                            if ($key != $record->payments()->count() - 1) {
+                                $doneBy .= ' and ';
+                            }
+                        }
+                    @endphp
+                    <div class="flex justify-between">
+                        <div>Done by <span style="font-weight: bold">{{ $doneBy }}</span> on <span style="font-weight: bold">{{ date('d/m/Y', strtotime($record->payments()->latest()->first()->created_at)) }}</span></div>
+                        <div>Printed by <span style="font-weight: bold">{{ auth()->user()->name }}</span> on <span style="font-weight: bold">{{ date('d/m/Y') }}</span></div>
+                    </div>
                 </x-filament::card>
             </div>
         </x-slot>
