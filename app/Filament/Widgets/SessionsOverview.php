@@ -30,6 +30,8 @@ class SessionsOverview extends BaseWidget
     protected function getCards(): array
     {
         $payments = InvoicePayment::query()
+            ->whereDate('created_at', '>=', date('Y-m-d 00:00:00'))
+            ->whereDate('created_at', '<=', date('Y-m-d 23:59:59'))
             ->when($this->since, function ($query, $since) {
                 $query->whereRelation('invoice', fn ($query) => $query->whereRelation('session', 'date', '>=', $since));
             })
@@ -90,6 +92,8 @@ class SessionsOverview extends BaseWidget
     protected function getSessionsData(): array
     {
         $currentSessions = Session::query()
+            ->whereDate('created_at', '>=', date('Y-m-d 00:00:00'))
+            ->whereDate('created_at', '<=', date('Y-m-d 23:59:59'))
             ->when($this->since, function ($query, $since) {
                 $query->where('date', '>=', $since);
             })
@@ -150,6 +154,8 @@ class SessionsOverview extends BaseWidget
     protected function getInvoicesData(): array
     {
         $currentInvoices = Invoice::query()
+            ->whereDate('created_at', '>=', date('Y-m-d 00:00:00'))
+            ->whereDate('created_at', '<=', date('Y-m-d 23:59:59'))
             ->when($this->since, function ($query, $since) {
                 $query->whereRelation('session', 'date', '>=', $since);
             })
