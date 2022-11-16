@@ -19,6 +19,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -45,6 +46,7 @@ use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rules\Unique;
 
 class FileResource extends Resource
 {
@@ -76,7 +78,10 @@ class FileResource extends Resource
                             ->reactive()
                             ->disableAutocomplete()
                             ->suffix("/")
-                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('00000')),
+                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('00000'))
+                            ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
+                                $set('full_number', sprintf("%05d", $state) . "/" . $get('registration_year'));
+                            }),
                         TextInput::make('registration_year')
                             ->label('Year')
                             ->numeric()
@@ -84,7 +89,14 @@ class FileResource extends Resource
                             ->length(4)
                             ->reactive()
                             ->disableAutocomplete()
-                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000')),
+                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000'))
+                            ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
+                                $set('full_number', sprintf("%05d", $get('number')) . "/" . $state);
+                            }),
+                        Hidden::make('full_number')
+                            ->label('Full number')
+                            ->validationAttribute('file number')
+                            ->unique(),
                         TextInput::make('names')
                             ->required()
                             ->columnSpan(2),
