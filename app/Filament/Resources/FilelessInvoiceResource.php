@@ -39,7 +39,7 @@ class FilelessInvoiceResource extends Resource
 
     protected static ?int $navigationSort = 6;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
 
     public static function form(Form $form): Form
     {
@@ -60,7 +60,7 @@ class FilelessInvoiceResource extends Resource
                                     ->default(auth()->user()->id),
                                 Select::make('charge_id')
                                     ->label('Charge')
-                                    ->options(Charge::where('charge_list_charge_type_id', 27)->pluck('name', 'id'))
+                                    ->options(Charge::where('charge_list_charge_type_id', 28)->pluck('name', 'id'))
                                     ->searchable()
                                     ->reactive()
                                     ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
