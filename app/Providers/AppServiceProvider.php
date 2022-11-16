@@ -47,78 +47,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        /* Filament::navigation(function (NavigationBuilder $builder): NavigationBuilder {
-            return $builder
-                ->items([
-                    ...Dashboard::getNavigationItems(),
-                    ...InsuranceResource::getNavigationItems(),
-                    ...FileResource::getNavigationItems(),
-                    ...SessionResource::getNavigationItems(),
-                    ...InvoiceResource::getNavigationItems(),
-                ])
-                ->groups([
-                    NavigationGroup::make('Charges')
-                        ->items([
-                            ...ChargeTypeResource::getNavigationItems(),
-                            ...ChargeListResource::getNavigationItems(),
-                            ...ChargeResource::getNavigationItems()
-                        ])
-                        ->icon('eos-product-subscriptions-o')
-                        ->collapsed(),
-                    NavigationGroup::make('HR')
-                        ->items([
-                            ...EmployeeCategoryResource::getNavigationItems(),
-                            ...EmployeeResource::getNavigationItems(),
-                        ])
-                        ->icon('clarity-employee-group-line')
-                        ->collapsed(),
-                    NavigationGroup::make('Users, Roles & Permissions')
-                        ->items([
-                            ...PermissionResource::getNavigationItems(),
-                            ...RoleResource::getNavigationItems(),
-                            ...UserResource::getNavigationItems()
-                        ])
-                        ->icon('heroicon-o-users')
-                        ->collapsed(),
-                    NavigationGroup::make('Reports')
-                        ->items([
-                            ...UserSessionsReport::getNavigationItems(),
-                            ...UserInvoicesReport::getNavigationItems(),
-                            ...DoctorTransactionsReport::getNavigationItems(),
-                            // ...SessionsReport::getNavigationItems(),
-                            // ...InvoicesReport::getNavigationItems()
-                        ])
-                        ->icon('tabler-report')
-                        ->collapsed(false)
-                        ->collapsible(false),
-                ]);
-        }); */
-
-        /* Filament::serving(function () {
+        Filament::serving(function () {
             Filament::registerNavigationGroups([
-                NavigationGroup::make('Charges')
-                    ->icon('eos-product-subscriptions-o')
-                    ->collapsed(),
-                NavigationGroup::make('Reports')
-                    ->icon('tabler-report')
-                    ->collapsed(false)
-                    ->collapsible(false),
-                NavigationGroup::make('HR')
-                    ->icon('clarity-employee-group-line')
-                    ->collapsed(),
-                NavigationGroup::make('Authentication')
-                    ->icon('heroicon-o-users')
-                    ->collapsed(),
                 NavigationGroup::make()
-                    ->label('Settings')
-                    ->icon('heroicon-s-cog')
+                    ->label('Billing')
+                    ->collapsible(false),
+                NavigationGroup::make()
+                    ->label('Charges'),
+                NavigationGroup::make()
+                    ->label('Reports'),
+                NavigationGroup::make()
+                    ->label('HR'),
+                NavigationGroup::make()
+                    ->label('Authentication')
                     ->collapsed(),
-            ]); */
-
-            /* Filament::registerTheme(
-                app(Vite::class)('resources/css/app.css'),
-            ); */
-        // });
+            ]);
+        });
 
         Column::configureUsing(function (Column $column): void {
             $column
