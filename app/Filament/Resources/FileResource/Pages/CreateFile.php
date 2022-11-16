@@ -12,10 +12,7 @@ class CreateFile extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $fileNumber = $data["number"];
-        $data['number'] = substr($fileNumber, 0, 4);
-        $data['registration_year'] = substr($fileNumber, 4);
-        $data['full_number'] = $data['number'] . "/" . $data['registration_year'];
+        $data['full_number'] = sprintf("%05d", $data['number']) . "/" . $data['registration_year'];
         
         return $data;
     }

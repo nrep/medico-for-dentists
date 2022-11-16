@@ -69,25 +69,43 @@ class FileResource extends Resource
                     ->schema([
                         TextInput::make('number')
                             ->required()
-                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('00000/0000'))
-                            ->autofocus(),
+                            ->autofocus()
+                            ->maxLength(5)
+                            ->minLength(1)
+                            ->numeric()
+                            ->reactive()
+                            ->disableAutocomplete()
+                            ->suffix("/")
+                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('00000')),
+                        TextInput::make('registration_year')
+                            ->label('Year')
+                            ->numeric()
+                            ->required()
+                            ->length(4)
+                            ->reactive()
+                            ->disableAutocomplete()
+                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000')),
                         TextInput::make('names')
-                            ->required(),
+                            ->required()
+                            ->columnSpan(2),
                         Select::make("sex")
                             ->options([
                                 "Male" => "Male",
                                 "Female" => "Female"
                             ])
                             ->required()
-                            ->searchable(),
+                            ->searchable()
+                            ->columnSpan(2),
                         TextInput::make('year_of_birth')
                             ->required()
-                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000')),
+                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000'))
+                            ->length(4)
+                            ->columnSpan(2),
                         PhoneInput::make('phone_number')
                             ->initialCountry('rw')
                             ->preferredCountries(['rw'])
                             ->separateDialCode(true)
-                            ->columnSpan(2),
+                            ->columnSpan(4),
                         Block::make('location')
                             ->schema([
                                 Select::make("location.province_id")
@@ -95,7 +113,8 @@ class FileResource extends Resource
                                     ->placeholder('Choose...')
                                     ->options(Province::all()->pluck('provincename', 'provincecode'))
                                     ->searchable()
-                                    ->reactive(),
+                                    ->reactive()
+                                    ->required(),
                                 Select::make("location.district_id")
                                     ->label('Dictrict')
                                     ->placeholder('Choose...')
@@ -105,7 +124,8 @@ class FileResource extends Resource
                                         }
                                         return [];
                                     })
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->required(),
                                 Select::make("location.sector_id")
                                     ->label('Sector')
                                     ->placeholder('Choose...')
@@ -116,7 +136,8 @@ class FileResource extends Resource
                                         }
                                         return [];
                                     })
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->required(),
                                 Select::make("location.cell_id")
                                     ->label('Cell')
                                     ->placeholder('Choose...')
@@ -126,7 +147,8 @@ class FileResource extends Resource
                                         }
                                         return [];
                                     })
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->required(),
                                 Select::make("location.village_id")
                                     ->label('Village')
                                     ->placeholder('Choose...')
@@ -136,10 +158,11 @@ class FileResource extends Resource
                                         }
                                         return [];
                                     })
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->required(),
                             ])
                             ->columns(5)
-                            ->columnSpan(2),
+                            ->columnSpan(4),
                         DatePicker::make("registration_date")
                             ->default(date('Y-m-d'))
                             ->hidden(),
@@ -223,9 +246,10 @@ class FileResource extends Resource
                                 Toggle::make('enabled')
                                     ->default(1)
                                     ->inline(false)
+                                    ->required()
                             ])
                             ->columns(4)
-                            ->columnSpan(2)
+                            ->columnSpan(4)
                             ->defaultItems(1),
                         Repeater::make('emergency_contacts')
                             ->relationship('emergencyContacts')
@@ -240,12 +264,13 @@ class FileResource extends Resource
                                 Toggle::make('enabled')
                                     ->default(1)
                                     ->inline(false)
+                                    ->required()
                             ])
                             ->columns(9)
-                            ->columnSpan(2)
+                            ->columnSpan(4)
                             ->defaultItems(1),
                     ])
-                    ->columns(2)
+                    ->columns(4)
             ]);
     }
 
@@ -254,7 +279,7 @@ class FileResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('number')
-                    ->formatStateUsing(fn (File $record): string => sprintf("%04d", substr($record->number, 0)) . "/" . $record->registration_year)
+                    ->formatStateUsing(fn (File $record): string => sprintf("%05d", substr($record->number, 0)) . "/" . $record->registration_year)
                     ->searchable()
                     ->sortable()
                     ->hidden(),
@@ -277,7 +302,6 @@ class FileResource extends Resource
                 TagsColumn::make("linkedInsurances.insurance_name")
                     ->label('Insurances')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        // dd($query->whereRelation('linkedInsurances', fn (Builder $query) => $query->whereRelation('insurance', 'name', 'like', "%{$search}%"))->toBase()->toSql());
                         return $query
                             ->whereRelation('linkedInsurances', fn (Builder $query) => $query->whereRelation('insurance', 'name', 'like', "%{$search}%"));
                     }),
