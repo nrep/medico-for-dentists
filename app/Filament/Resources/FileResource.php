@@ -69,7 +69,7 @@ class FileResource extends Resource
                     ->schema([
                         TextInput::make('number')
                             ->required()
-                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000/0000'))
+                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('00000/0000'))
                             ->autofocus(),
                         TextInput::make('names')
                             ->required(),
