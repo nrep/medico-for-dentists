@@ -157,7 +157,7 @@
                         }
                     @endphp
                     <div class="flex justify-between">
-                        <div>Done by <span style="font-weight: bold">{{ $doneBy }}</span> on <span style="font-weight: bold">{{ date('d/m/Y', strtotime($record?->payments()->latest()?->first()?->created_at)) }}</span></div>
+                        <div>Done by <span style="font-weight: bold">{{ $doneBy }}</span> on <span style="font-weight: bold">{{ date('d/m/Y', strtotime( $record->payments()->count() > 0 ? $record->payments()->latest()?->first()?->created_at : $record->charges()->latest()?->first()?->created_at)) }}</span></div>
                         <div>Printed by <span style="font-weight: bold">{{ auth()->user()->name }}</span> on <span style="font-weight: bold">{{ date('d/m/Y') }}</span></div>
                     </div>
                 </x-filament::card>
