@@ -4,6 +4,7 @@ namespace App\Filament\Resources\InvoiceResource\Pages;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Charge;
+use App\Models\Invoice;
 use App\Models\Session;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
