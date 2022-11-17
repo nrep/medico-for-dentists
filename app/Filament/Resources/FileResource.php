@@ -96,7 +96,7 @@ class FileResource extends Resource
                         Hidden::make('full_number')
                             ->label('Full number')
                             ->validationAttribute('file number')
-                            ->unique(),
+                            ->unique(fn ($context) => $context !== "edit"),
                         TextInput::make('names')
                             ->required()
                             ->columnSpan(2),

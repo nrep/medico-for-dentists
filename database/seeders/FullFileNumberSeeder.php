@@ -16,7 +16,7 @@ class FullFileNumberSeeder extends Seeder
     public function run()
     {
         foreach (File::lazy() as $file) {
-            $file->full_number = sprintf("%04d", substr($file->number, 0)) . "/" . $file->registration_year;
+            $file->full_number = sprintf("%05d", substr($file->number, 0)) . "/" . $file->registration_year;
             $file->save();
         }
     }
