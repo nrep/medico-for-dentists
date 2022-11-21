@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
+use App\Models\Insurance;
 use Carbon\Carbon;
 use Closure;
 use Filament\Forms\Components\DatePicker;
@@ -30,11 +31,14 @@ class InsurancesReports extends Page implements HasTable
 
     protected static ?string $navigationLabel = 'Insurances';
 
+    public $insurance_id;
+
     protected $queryString = [
         'tableFilters',
         'tableSortColumn',
         'tableSortDirection',
         'tableSearchQuery' => ['except' => ''],
+        'insurance_id' => ['except' => ''],
     ];
 
     protected static function shouldRegisterNavigation(): bool
@@ -44,116 +48,636 @@ class InsurancesReports extends Page implements HasTable
 
     protected function getTableQuery(): Builder
     {
-        return Invoice::query()
-            ->whereRelation('session', function (Builder $query) {
-                return $query->whereRelation('fileInsurance', 'insurance_id', 4);
-            });
+        if ($this->insurance_id) {
+            return Invoice::query()
+                ->whereRelation('session', function (Builder $query) {
+                    return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id);
+                });
+        } else {
+            return Insurance::query();
+        }
     }
 
     protected function getTableColumns(): array
     {
-        return [
-            TextColumn::make('session.date')
-                ->label('Date')
-                ->searchable()
-                ->sortable(),
-            TextColumn::make('session.specific_data.voucher_number')
-                ->label('Voucher Identification')
-                // ->searchable()
-                ->sortable()
-                ->formatStateUsing(fn ($state) => "40440006/" . $state . "/" . date('y')),
-            TextColumn::make('session.fileInsurance.specific_data.member_number')
-                ->label("Beneficiary's Affiliation No")
-                // ->searchable()
-                ->sortable(),
-            TextColumn::make('session.fileInsurance.file.year_of_birth')
-                ->label("Beneficiary's Age")
-                ->searchable()
-                ->sortable(),
-            TextColumn::make('session.fileInsurance.file.sex')
-                ->label("Beneficiary's Sex")
-                ->searchable()
-                ->sortable(),
-            TextColumn::make('session.fileInsurance.file.names')
-                ->label("Beneficiary's Names")
-                ->searchable()
-                ->sortable(),
-            TextColumn::make('session.fileInsurance.specific_data.affiliate_name')
-                ->label("Affiliate's Names")
-                // ->searchable()
-                ->sortable(),
-            TextColumn::make('session.fileInsurance.specific_data.affiliate_affectation')
-                ->label("Affiliate's Affectation")
-                // ->searchable()
-                ->sortable(),
-            TextColumn::make('id')
-                ->label("Cost For Consultation 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->whereRelation('charge', function (Builder $query) {
-                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
-                        })
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.id')
-                ->label("Cost For Laboratory Tests 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->whereRelation('charge', function (Builder $query) {
-                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
-                        })
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.fileInsurance.id')
-                ->label("Cost For Medical Imaging 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->whereRelation('charge', function (Builder $query) {
-                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 28);
-                        })
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.fileInsurance.file.id')
-                ->label("Cost For Hospitalization 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->whereRelation('charge', function (Builder $query) {
-                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
-                        })
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.fileInsurance.specific_data.id')
-                ->label("Cost For Procedures & Materials 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->whereRelation('charge', function (Builder $query) {
-                            return $query->whereRelation('chargeListChargeType', function (Builder $query) {
-                                return $query->whereNotIn('charge_type_id', [1, 2, 28, 5]);
-                            });
-                        })
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.fileInsurance.specific_data.idd')
-                ->label("Cost For Medicines 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->whereRelation('charge', function (Builder $query) {
-                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
-                        })
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.fileInsurance.specific_data.iddd')
-                ->label("Total Amount 100%")
-                ->getStateUsing(function (Invoice $record) {
-                    return $record->charges()
-                        ->sum('total_price');
-                }),
-            TextColumn::make('session.fileInsurance.specific_data.idddd')
-                ->label("Total Amount 85%")
-                ->getStateUsing(function (Invoice $record) {
-                    return round($record->charges()->sum('total_price') * (85 / 100));
-                }),
-        ];
+        $columns = [];
+        if ($this->insurance_id) {
+            if ($this->insurance_id == 4) {
+                $columns = [
+                    TextColumn::make('session.date')
+                        ->label('Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.specific_data.voucher_number')
+                        ->label('Voucher Identification')
+                        ->sortable()
+                        ->formatStateUsing(fn ($state) => "40440006/" . $state . "/" . date('y')),
+                    TextColumn::make('session.fileInsurance.specific_data.member_number')
+                        ->label("Beneficiary's Affiliation No")
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.year_of_birth')
+                        ->label("Beneficiary's Age")
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.sex')
+                        ->label("Beneficiary's Sex")
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.names')
+                        ->label("Beneficiary's Names")
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.affiliate_name')
+                        ->label("Affiliate's Names")
+                        // ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.affiliate_affectation')
+                        ->label("Affiliate's Affectation")
+                        // ->searchable()
+                        ->sortable(),
+                    TextColumn::make('id')
+                        ->label("Cost For Consultation 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.id')
+                        ->label("Cost For Laboratory Tests 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.id')
+                        ->label("Cost For Medical Imaging 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 28);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.id')
+                        ->label("Cost For Hospitalization 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Cost For Procedures & Materials 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 28, 5, 3]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idd')
+                        ->label("Cost For Medicines 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Total Amount 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("Total Amount 85%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            } else if ($this->insurance_id == 6 || $this->insurance_id == 9) {
+                $columns = [
+                    TextColumn::make('session.date')
+                        ->label('Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.police_number')
+                        ->label('No Police')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.affiliation_number')
+                        ->label('No Carte')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.names')
+                        ->label('Nom et Prenom Du Malade')
+                        ->sortable(),
+                    TextColumn::make('id')
+                        ->label("Cons. 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.idf')
+                        ->label("Examen Comp. 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.id')
+                        ->label("Hosp. 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Acte Et Mater 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 5, 3]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idd')
+                        ->label("Medic 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Total 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("A Payer Par SORAS")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            } else if ($this->insurance_id == 7) {
+                $columns = [
+                    TextColumn::make('session.fileInsurance.file.specific_data.scheme_name')
+                        ->label('Scheme Name')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.police_number')
+                        ->label('Smart Card Number')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.invoice_number')
+                        ->label('Claim Form Number/Invoice Number')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.specific_data.last_name')
+                        ->label('Last Name')
+                        ->formatStateUsing(fn (Invoice $record) => $record->session->fileInsurance->file->specific_data['last_name'] ?? $record->session->fileInsurance->file->names)
+                        ->sortable()
+                        ->wrap(),
+                    TextColumn::make('session.fileInsurance.file.specific_data.first_name')
+                        ->label('First Name')
+                        ->sortable()
+                        ->wrap(),
+                    TextColumn::make('session.date')
+                        ->label('Treatment Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('id')
+                        ->label("Consultation")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.idf')
+                        ->label("Lab Tests")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idd')
+                        ->label("Drugs")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.id')
+                        ->label("Imaging")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 28);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Procedures")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 28, 4, 5]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.id')
+                        ->label("Consumables")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 4);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.idsasa')
+                        ->label("Bed Charges")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.id')
+                        ->label("Benefit Type(OP, IP, MAT)")
+                        ->getStateUsing(function (Invoice $record) {
+                            $hospitalizationCost = $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                            return $hospitalizationCost > 0 ? 'IPD' : 'OPD';
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Gross Amount")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddddd')
+                        ->label("Copay")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->insured_pays != 100 ? $record?->session->discount->insured_pays / 100 : $record?->session->discount->insured_pays));
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("Payable by BRITAM")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            } else if ($this->insurance_id == 8) {
+                $columns = [
+                    TextColumn::make('session.date')
+                        ->label('Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.specific_data.affiliate_name')
+                        ->label('Assure Principal')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.names')
+                        ->label('Nom du Malade')
+                        ->sortable()
+                        ->wrap(),
+                    TextColumn::make('id')
+                        ->label("Consultation")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.idf')
+                        ->label("Labo")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.idsasa')
+                        ->label("Hospitalisation")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Actes + Med")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 5, 3]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Total Amount")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("Total a Payer")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            } else if ($this->insurance_id == 11) {
+                $columns = [
+                    TextColumn::make('session.date')
+                        ->label('Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.member_number')
+                        ->label('Member No')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.names')
+                        ->label('Full Name of Patient')
+                        ->sortable()
+                        ->wrap(),
+                    TextColumn::make('id')
+                        ->label("Cost of Consultation 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.idf')
+                        ->label("Cost of Laboratory Tests 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.id')
+                        ->label("Cost of Hospitalization 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Cost of Procedures And Material 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 5, 3]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idd')
+                        ->label("Cost of Drugs(Medicaments) 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Total Amount 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("Total Amount")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            } else if ($this->insurance_id == 12) {
+                $columns = [
+                    TextColumn::make('session.date')
+                        ->label('Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.affiliation_number')
+                        ->label('No Carte')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.names')
+                        ->label('Nom et Prenom Du Malade')
+                        ->sortable(),
+                    TextColumn::make('id')
+                        ->label("Cons. 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.idf')
+                        ->label("Examen Comp. 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.id')
+                        ->label("Hosp. 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Acte Et Mater 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 5, 3]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idd')
+                        ->label("Medic 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Total Amount 100%")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("A Payer Par RADIANT")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            } else if ($this->insurance_id == 13 || $this->insurance_id == 14 || $this->insurance_id == 15) {
+                $columns = [
+                    TextColumn::make('session.date')
+                        ->label('Date')
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.specific_data.affiliation_number')
+                        ->label('Member Number')
+                        ->sortable(),
+                    TextColumn::make('session.fileInsurance.file.names')
+                        ->label('Full Name of Patient')
+                        ->sortable()
+                        ->wrap(),
+                    TextColumn::make('id')
+                        ->label("Cost of Consultation")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.idf')
+                        ->label("Cost of Laboratory Tests")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.file.id')
+                        ->label("Cost of Hospitalization")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.id')
+                        ->label("Cost of Procedures And Material")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                                        return $query->whereNotIn('charge_type_id', [1, 2, 5, 3]);
+                                    });
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idd')
+                        ->label("Cost of Drugs(Medicaments)")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                                })
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.iddd')
+                        ->label("Total Amount")
+                        ->getStateUsing(function (Invoice $record) {
+                            return $record->charges()
+                                ->sum('total_price');
+                        }),
+                    TextColumn::make('session.fileInsurance.specific_data.idddd')
+                        ->label("Total Amount")
+                        ->getStateUsing(function (Invoice $record) {
+                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                        }),
+                ];
+            }
+        } else {
+            $columns = [
+                TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('sessions.name')
+                    ->label('Number of Bills')
+                    ->getStateUsing(fn (Insurance $record) => $record->sessions()->count())
+                    ->formatStateUsing(fn ($state) => number_format($state)),
+                TextColumn::make('sessions.id')
+                    ->label('Total')
+                    ->getStateUsing(function (Insurance $record) {
+                        $total = 0;
+                        foreach ($record->sessions as $session) {
+                            $total += $session?->invoice?->charges()->sum('total_price');
+                        }
+                        return $total;
+                    })
+                    ->formatStateUsing(fn ($state) => 'FRw ' . number_format($state)),
+                TextColumn::make('sessions.ids')
+                    ->label('Insurance')
+                    ->getStateUsing(function (Insurance $record) {
+                        $total = 0;
+                        foreach ($record->sessions as $session) {
+                            $discount = $session->discount->discount > 0 ? $session->discount->discount / 100 : $session->discount->discount;
+                            $total += $session?->invoice?->charges()->sum('total_price') * $discount;
+                        }
+                        return $total;
+                    })
+                    ->formatStateUsing(fn ($state) => 'FRw ' . number_format($state)),
+                TextColumn::make('sessions.idsi')
+                    ->label('Patient pays')
+                    ->getStateUsing(function (Insurance $record) {
+                        $total = 0;
+                        foreach ($record->sessions as $session) {
+                            $discount = $session->discount->discount > 0 ? $session->discount->discount / 100 : $session->discount->discount;
+                            // $insuredPays = $session->discount->insured_pays > 0 ? $session->discount->insured_pays / 100 : $session->discount->insured_pays;
+                            $total += $session?->invoice?->charges()->sum('total_price') - ($session?->invoice?->charges()->sum('total_price') * $discount);
+                        }
+                        return $total;
+                    })
+                    ->formatStateUsing(fn ($state) => 'FRw ' . number_format($state)),
+            ];
+        }
+
+        return $columns;
     }
 
     protected function getTableBulkActions(): array
@@ -165,7 +689,14 @@ class InsurancesReports extends Page implements HasTable
 
     protected function getTableRecordUrlUsing(): Closure
     {
-        return fn (Model $record): string => InvoiceResource::getUrl('view', $record->id);
+        if ($this->insurance_id) {
+            return fn (Model $record): string => InvoiceResource::getUrl('view', $record->id);
+        } else {
+            return fn (Model $record): string => $this->getUrl([
+                "tableFilters" => array_merge($this->tableFilters),
+                "insurance_id" => $record->id
+            ]);
+        }
     }
 
     protected function getTableFilters(): array
@@ -227,15 +758,27 @@ class InsurancesReports extends Page implements HasTable
                     return $indicators;
                 })
                 ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['since'],
-                            fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
-                        )
-                        ->when(
-                            $data['until'],
-                            fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
-                        );
+                    if ($this->insurance_id) {
+                        return $query
+                            ->when(
+                                $data['since'],
+                                fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
+                            );
+                    } else {
+                        return $query
+                            ->when(
+                                $data['since'],
+                                fn (Builder $query, $date): Builder => $query->whereRelation('sessions', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereRelation('sessions', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
+                            );
+                    }
                 }),
         ];
     }

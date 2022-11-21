@@ -28,4 +28,8 @@ class Insurance extends Model
     {
         return $this->hasMany(ChargeListInsurance::class);
     }
+
+    public function sessions() {
+        return $this->hasManyThrough(Session::class, FileInsurance::class);
+    }
 }

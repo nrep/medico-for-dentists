@@ -189,8 +189,10 @@ class FileResource extends Resource
                                     ->columnSpan(function (Closure $get) {
                                         if ($get('insurance_id') == null || $get('insurance_id') == 3) {
                                             return 3;
-                                        } else if ($get('insurance_id') == 4 || $get('insurance_id') == 7 || $get('insurance_id') == 10 || $get('insurance_id') == 11 || $get('insurance_id') == 13 || $get('insurance_id') == 14 || $get('insurance_id') == 15) {
+                                        } else if ($get('insurance_id') == 4 || $get('insurance_id') == 10 || $get('insurance_id') == 11 || $get('insurance_id') == 13 || $get('insurance_id') == 14 || $get('insurance_id') == 15) {
                                             return 2;
+                                        } else {
+                                            return 1;
                                         }
                                     }),
                                 TextInput::make('specific_data.member_number')
@@ -254,10 +256,15 @@ class FileResource extends Resource
                                     ->hidden(function (Closure $get) {
                                         return $get('insurance_id') != 8;
                                     }),
+                                TextInput::make('specific_data.scheme_name')
+                                    ->required()
+                                    ->hidden(function (Closure $get) {
+                                        return $get('insurance_id') != 7;
+                                    }),
                                 Toggle::make('enabled')
                                     ->default(1)
                                     ->inline(false)
-                                    ->required()
+                                    ->required(),
                             ])
                             ->columns(4)
                             ->columnSpan(4)
@@ -394,6 +401,27 @@ class FileResource extends Resource
                                             if ($get('file_insurance_id')) {
                                                 $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
                                                 if ($insurance->id == 4) {
+                                                    $bool = true;
+                                                }
+                                            }
+                                            return $bool;
+                                        }),
+                                    TextInput::make('specific_data.invoice_number')
+                                        ->hidden(function (Closure $get) {
+                                            $bool = true;
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id == 7) {
+                                                    $bool = false;
+                                                }
+                                            }
+                                            return $bool;
+                                        })
+                                        ->required(function (Closure $get) {
+                                            $bool = false;
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id == 7) {
                                                     $bool = true;
                                                 }
                                             }

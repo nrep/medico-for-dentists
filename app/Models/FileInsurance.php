@@ -33,4 +33,8 @@ class FileInsurance extends Model
     {
         return $this->insurance->name;
     }
+
+    public function sessions() {
+        return $this->hasMany(Session::class);
+    }
 }
