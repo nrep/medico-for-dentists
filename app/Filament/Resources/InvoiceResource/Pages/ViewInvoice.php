@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\InvoiceResource\Pages;
 
+use App\Filament\Resources\FileResource;
 use App\Filament\Resources\InvoiceResource;
 use App\Filament\Resources\InvoiceResource\Widgets\InvoiceInsuranceTotalPrice;
 use App\Filament\Resources\InvoiceResource\Widgets\InvoicePatientTotalPrice;
@@ -62,6 +63,10 @@ class ViewInvoice extends ViewRecord
                 EditAction::make()
                     ->icon('heroicon-s-pencil')
                     ->color('secondary'),
+                Action::make('Go to File')
+                    ->url(FileResource::getUrl('view', [
+                        'record' => $this->record->session->fileInsurance->file->id
+                    ])),
                 Actions\DeleteAction::make()
                     ->icon('heroicon-s-trash'),
                 Actions\ForceDeleteAction::make(),

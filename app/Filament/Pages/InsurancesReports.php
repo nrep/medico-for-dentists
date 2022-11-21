@@ -649,8 +649,7 @@ class InsurancesReports extends Page implements HasTable
                             $total += $session?->invoice?->charges()->sum('total_price');
                         }
                         return $total;
-                    })
-                    ->formatStateUsing(fn ($state) => 'FRw ' . number_format($state)),
+                    }),
                 TextColumn::make('sessions.ids')
                     ->label('Insurance')
                     ->getStateUsing(function (Insurance $record) {
@@ -660,8 +659,7 @@ class InsurancesReports extends Page implements HasTable
                             $total += $session?->invoice?->charges()->sum('total_price') * $discount;
                         }
                         return $total;
-                    })
-                    ->formatStateUsing(fn ($state) => 'FRw ' . number_format($state)),
+                    }),
                 TextColumn::make('sessions.idsi')
                     ->label('Patient pays')
                     ->getStateUsing(function (Insurance $record) {
@@ -672,8 +670,7 @@ class InsurancesReports extends Page implements HasTable
                             $total += $session?->invoice?->charges()->sum('total_price') - ($session?->invoice?->charges()->sum('total_price') * $discount);
                         }
                         return $total;
-                    })
-                    ->formatStateUsing(fn ($state) => 'FRw ' . number_format($state)),
+                    }),
             ];
         }
 

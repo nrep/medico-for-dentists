@@ -38,5 +38,8 @@ class File extends Model
         return $this->hasMany(FileEmergencyContact::class);
     }
 
-    // public function het
+    public function sessions()
+    {
+        return $this->hasManyThrough(Session::class, FileInsurance::class);
+    }
 }

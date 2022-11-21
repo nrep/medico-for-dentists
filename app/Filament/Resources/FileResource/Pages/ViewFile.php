@@ -2,9 +2,15 @@
 
 namespace App\Filament\Resources\FileResource\Pages;
 
+use App\Filament\Pages\InvoicesReport;
 use App\Filament\Resources\FileResource;
+use App\Models\File;
 use Filament\Pages\Actions;
+use Filament\Pages\Actions\Action;
+use Filament\Pages\Actions\ActionGroup;
+use Filament\Pages\Actions\DeleteAction;
 use Filament\Pages\Actions\EditAction;
+use Filament\Pages\Actions\ViewAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewFile extends ViewRecord
@@ -16,7 +22,14 @@ class ViewFile extends ViewRecord
         return [
             EditAction::make()
                 ->icon('heroicon-s-pencil'),
-            // \pxlrbt\FilamentExcel\Actions\Pages\ExportAction::make(),
+            ActionGroup::make([
+                DeleteAction::make(),
+            ]),
         ];
+    }
+
+    public function hasCombinedRelationManagerTabsWithForm(): bool
+    {
+        return true;
     }
 }

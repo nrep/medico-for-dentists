@@ -188,7 +188,7 @@ class InvoiceResource extends Resource
                     ->sortable()
                     ->formatStateUsing(fn ($state) => "PROV-" . sprintf("%06d", $state)),
                 TextColumn::make('session.fileInsurance.file.number')
-                    ->formatStateUsing(fn (Invoice $record) => sprintf("%04d", $record->session->fileInsurance->file->number) . "/" . $record->session->fileInsurance->file->registration_year)
+                    ->formatStateUsing(fn (Invoice $record) => sprintf("%05d", $record->session->fileInsurance->file->number) . "/" . $record->session->fileInsurance->file->registration_year)
                     ->label('File number')
                     ->searchable()
                     ->sortable(),

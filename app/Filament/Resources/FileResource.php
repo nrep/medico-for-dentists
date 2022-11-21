@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FileResource\Pages;
 use App\Filament\Resources\FileResource\RelationManagers;
+use App\Filament\Resources\FileResource\RelationManagers\SessionsRelationManager;
 use App\Forms\Components\TextInputWithAddons;
 use App\Models\Cell;
 use App\Models\District;
@@ -448,7 +449,7 @@ class FileResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SessionsRelationManager::class
         ];
     }
 
