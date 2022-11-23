@@ -49,12 +49,13 @@ class InsurancesReports extends Page implements HasTable
     protected function getTableQuery(): Builder
     {
         if ($this->insurance_id) {
-            return Invoice::query()
+            return Invoice::select('invoices.*')
+                ->get()
+                ->toQuery()
                 ->join('sessions', 'invoices.session_id', 'sessions.id')
                 ->whereRelation('session', function (Builder $query) {
                     return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id);
-                })
-                ->orderBy('sessions.date');
+                });
         } else {
             return Insurance::query();
         }
@@ -88,7 +89,8 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.file.names')
                         ->label("Beneficiary's Names")
                         ->searchable()
-                        ->sortable(),
+                        ->sortable()
+                        ->wrap(),
                     TextColumn::make('session.fileInsurance.specific_data.affiliate_name')
                         ->label("Affiliate's Names")
                         // ->searchable()
@@ -179,7 +181,8 @@ class InsurancesReports extends Page implements HasTable
                         ->sortable(),
                     TextColumn::make('session.fileInsurance.file.names')
                         ->label('Nom et Prenom Du Malade')
-                        ->sortable(),
+                        ->sortable()
+                        ->wrap(),
                     TextColumn::make('id')
                         ->label("Cons. 100%")
                         ->getStateUsing(function (Invoice $record) {
@@ -501,7 +504,8 @@ class InsurancesReports extends Page implements HasTable
                         ->sortable(),
                     TextColumn::make('session.fileInsurance.file.names')
                         ->label('Nom et Prenom Du Malade')
-                        ->sortable(),
+                        ->sortable()
+                        ->wrap(),
                     TextColumn::make('id')
                         ->label("Cons. 100%")
                         ->getStateUsing(function (Invoice $record) {
