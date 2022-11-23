@@ -163,7 +163,7 @@ class UserInvoicesReport extends Page implements HasTable
                         return null;
                     }
 
-                    return 'Received on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    return 'Billed on ' . Carbon::parse($data['date'])->toFormattedDateString();
                 })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');

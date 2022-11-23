@@ -12,6 +12,7 @@ use App\Models\Charge;
 use App\Models\Employee;
 use App\Models\EmployeeEmployeeCategory;
 use App\Models\FileInsurance;
+use App\Models\Insurance;
 use App\Models\Invoice;
 use App\Models\Session;
 use Carbon\Carbon;
@@ -208,18 +209,34 @@ class InvoiceResource extends Resource
                         Forms\Components\DatePicker::make('date')
                             ->default(now()),
                     ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['date']) {
+                            return null;
+                        }
+
+                        return 'Billed on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    })
                     ->query(function (Builder $query, array $data): Builder {
                         $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
                         return $query->whereRelation('session', 'date', $data['date']);
                     }),
-                /* DateFilter::make('created_at')
-                    ->label(__('Created At'))
-                    ->minDate(Carbon::today()->subMonth(1))
-                    ->maxDate(Carbon::today()->addMonth(1))
-                    ->timeZone('America/New_York')
-                    ->range()
-                    ->fromLabel(__('From'))
-                    ->untilLabel(__('Until')) */
+                Filter::make('Insurance')
+                    ->form([
+                        Select::make('insurance_id')
+                            ->label("Insurance")
+                            ->options(Insurance::all()->pluck('name', 'id'))
+                            ->searchable(),
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['insurance_id']) {
+                            return null;
+                        }
+
+                        return 'Insurance: ' . Insurance::find($data['insurance_id'])?->name;
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return isset($data['insurance_id']) ? $query->whereRelation('session', fn (Builder $query) => $query->whereRelation('fileInsurance', 'insurance_id', $data['insurance_id'])) : $query;
+                    }),
             ])
             ->actions([
                 ViewAction::make(),

@@ -17,6 +17,7 @@
         "maatwebsite/excel": "^3.1",
         "marjose123/filament-lockscreen": "^1.1",
         "phpsa/filament-authentication": "^2.2",
+        "predis/predis": "^2.0",
         "psr/simple-cache": "2.0",
         "pxlrbt/filament-excel": "^1.1",
         "stevebauman/purify": "^5.0",
