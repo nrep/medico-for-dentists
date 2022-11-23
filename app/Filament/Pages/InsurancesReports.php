@@ -49,10 +49,7 @@ class InsurancesReports extends Page implements HasTable
     protected function getTableQuery(): Builder
     {
         if ($this->insurance_id) {
-            return Invoice::select('invoices.*')
-                ->get()
-                ->toQuery()
-                ->join('sessions', 'invoices.session_id', 'sessions.id')
+            return Invoice::query()
                 ->whereRelation('session', function (Builder $query) {
                     return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id);
                 });
