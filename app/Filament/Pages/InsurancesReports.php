@@ -361,7 +361,7 @@ class InsurancesReports extends Page implements HasTable
                         ->label('Date')
                         ->searchable()
                         ->sortable(),
-                    TextColumn::make('session.fileInsurance.file.specific_data.affiliate_name')
+                    TextColumn::make('session.fileInsurance.specific_data.affiliate_name')
                         ->label('Assure Principal')
                         ->sortable(),
                     TextColumn::make('session.fileInsurance.file.names')
