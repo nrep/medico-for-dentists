@@ -23,4 +23,9 @@ class InvoiceDay extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+
+    public function consultedBy()
+    {
+        return $this->belongsTo(Employee::class, 'doctor_id');
+    }
 }

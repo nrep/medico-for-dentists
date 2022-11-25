@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Exports\InvoicesExport;
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
 use App\Models\Insurance;
@@ -10,12 +11,14 @@ use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
@@ -781,5 +784,22 @@ class InsurancesReports extends Page implements HasTable
                     }
                 }),
         ];
+    }
+
+    public function export()
+    {
+        return Excel::download(new InvoicesExport, 'invoices.xlsx');
+    }
+
+    protected function getTableActions(): array
+    {
+        $actions = [];
+        if (!$this->insurance_id) {
+            $actions[] = Action::make('Export')
+                ->action('export')
+                ->icon('heroicon-s-download')
+                ->hidden(fn (Model $record) => $record?->id !== 5);
+        }
+        return $actions;
     }
 }
