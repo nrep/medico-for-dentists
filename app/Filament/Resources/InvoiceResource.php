@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InvoiceResource\Pages;
 use App\Filament\Resources\InvoiceResource\Pages\ViewInvoice;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
+use App\Filament\Resources\InvoiceResource\RelationManagers\DaysRelationManager;
 use App\Filament\Resources\InvoiceResource\Widgets\InvoiceInsuranceTotalPrice;
 use App\Filament\Resources\InvoiceResource\Widgets\InvoicePatientTotalPrice;
 use App\Filament\Resources\InvoiceResource\Widgets\InvoiceTotalPrice;
@@ -253,7 +254,8 @@ class InvoiceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\PaymentsRelationManager::class
+            RelationManagers\PaymentsRelationManager::class,
+            DaysRelationManager::class,
         ];
     }
 
