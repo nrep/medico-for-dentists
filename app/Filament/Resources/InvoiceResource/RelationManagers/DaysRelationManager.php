@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\InvoiceResource\RelationManagers;
 
+use App\Filament\Resources\InvoiceDayResource;
 use App\Models\InvoiceDay;
 use Filament\Forms;
 use Filament\Resources\Form;
@@ -77,8 +78,8 @@ class DaysRelationManager extends RelationManager
             ->actions([
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
-                /* ViewAction::make()
-                    ->url(fn (InvoiceDay $record) => "/invoice-days/{$record->id}"), */
+                ViewAction::make()
+                    ->url(fn (InvoiceDay $record) => InvoiceDayResource::getUrl('view', ['record' => $record->id])),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),

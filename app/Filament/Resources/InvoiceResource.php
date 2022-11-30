@@ -68,112 +68,7 @@ class InvoiceResource extends Resource
                 InvoiceResource::getNumberOfDaysFormField(),
                 Repeater::make('days')
                     ->relationship()
-                    ->schema([
-                        DatePicker::make("date")
-                            ->label('Date')
-                            ->required()
-                            ->default(date('Y-m-d')),
-                        Select::make('doctor_id')
-                            ->label('Doctor')
-                            ->options(function () {
-                                return Employee::whereHas('categories', function (Builder $query) {
-                                    $query->where('employee_category_id', 1);
-                                })
-                                    ->pluck('names', 'id');
-                            })
-                            ->required()
-                            ->searchable(),
-                        Repeater::make('items')
-                            ->relationship()
-                            ->schema([
-                                Hidden::make('done_by')
-                                    ->default(auth()->user()->id),
-                                Select::make('charge_id')
-                                    ->label('Charge')
-                                    ->options(function ($livewire) {
-                                        return Charge::whereRelation('chargeListChargeType', function (Builder $query) use ($livewire) {
-                                            return $query->whereRelation('chargeList', function (Builder $query) use ($livewire) {
-                                                return $query->whereRelation('linkedInsurances', function (Builder $query) use ($livewire) {
-                                                    return $query->whereRelation('insurance', 'id', $livewire?->session->fileInsurance->insurance_id);
-                                                });
-                                            });
-                                        })
-                                            ->pluck('name', 'id');
-                                    })
-                                    ->allowHtml()
-                                    ->searchable()
-                                    ->getSearchResultsUsing(function (string $search) {
-                                        return Charge::whereRelation('chargeListChargeType', function (Builder $query) {
-                                            return $query->whereRelation('chargeList', function (Builder $query) {
-                                                return $query->whereRelation('linkedInsurances', function (Builder $query) {
-                                                    return $query->whereRelation('insurance', 'id', Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id);
-                                                });
-                                            });
-                                        })
-                                            ->where('name', 'like', "%{$search}%")
-                                            ->orWhere('price', 'like', "%{$search}%")
-                                            ->pluck('name', 'id');
-                                    })/* 
-                                    ->getOptionLabelUsing(function ($component, $value): string {
-                                        $charge = Charge::find($value);
-                                  
-                                        return static::getCleanOptionString($charge);
-                                    }) */
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
-                                        $charge = Charge::find($state);
-                                        if ($charge) {
-                                            $set('sold_at', $charge->price);
-                                            $set('unit_price', $charge->price);
-                                            $set('quantity', 1);
-                                            $set('total_price', $charge->price * 1);
-                                        } else {
-                                            $set('sold_at', '');
-                                            $set('unit_price', '');
-                                            $set('quantity', '');
-                                            $set('total_price', '');
-                                        }
-                                    })
-                                    ->columnSpan(3)
-                                    ->required(),
-                                TextInput::make('sold_at')
-                                    ->numeric()
-                                    ->extraInputAttributes(["readonly" => "true"]),
-                                /* ->mask(
-                                        fn (Mask $mask) => $mask
-                                            ->patternBlocks([
-                                                'money' => fn (Mask $mask) => $mask
-                                                    ->numeric()
-                                                    ->thousandsSeparator(',')
-                                                    ->decimalSeparator('.'),
-                                            ])
-                                            ->pattern('FRw money'),
-                                    ), */
-                                TextInput::make('quantity')
-                                    ->numeric()
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Closure $get, Closure $set, $state) {
-                                        $set('total_price', $get('sold_at') * $state);
-                                    })
-                                    ->required(),
-                                TextInput::make('total_price')
-                                    ->numeric()
-                                    ->disabled()
-                                /* ->mask(
-                                        fn (Mask $mask) => $mask
-                                            ->patternBlocks([
-                                                'money' => fn (Mask $mask) => $mask
-                                                    ->numeric()
-                                                    ->thousandsSeparator(',')
-                                                    ->decimalSeparator('.'),
-                                            ])
-                                            ->pattern('FRw money'),
-                                    ) */
-                            ])
-                            ->columns(6)
-                            ->columnSpan(2)
-                            ->collapsible()
-                    ])
+                    ->schema(InvoiceResource::getDaysSchema())
                     ->columnSpan(2)
                     ->columns(2)
                     ->collapsible()
@@ -321,5 +216,115 @@ class InvoiceResource extends Resource
                 ->with('type', $model?->chargeListChargeType?->chargeType?->name)
                 ->render()
         );
+    }
+
+    public static function getDaysSchema(): array
+    {
+        return [
+            DatePicker::make("date")
+                ->label('Date')
+                ->required()
+                ->default(date('Y-m-d')),
+            Select::make('doctor_id')
+                ->label('Doctor')
+                ->options(function () {
+                    return Employee::whereHas('categories', function (Builder $query) {
+                        $query->where('employee_category_id', 1);
+                    })
+                        ->pluck('names', 'id');
+                })
+                ->required()
+                ->searchable(),
+            Repeater::make('items')
+                ->relationship()
+                ->schema([
+                    Hidden::make('done_by')
+                        ->default(auth()->user()->id),
+                    Select::make('charge_id')
+                        ->label('Charge')
+                        ->options(function ($livewire) {
+                            return Charge::whereRelation('chargeListChargeType', function (Builder $query) use ($livewire) {
+                                return $query->whereRelation('chargeList', function (Builder $query) use ($livewire) {
+                                    return $query->whereRelation('linkedInsurances', function (Builder $query) use ($livewire) {
+                                        return $query->whereRelation('insurance', 'id', $livewire?->session?->fileInsurance->insurance_id);
+                                    });
+                                });
+                            })
+                                ->pluck('name', 'id');
+                        })
+                        ->allowHtml()
+                        ->searchable()
+                        ->getSearchResultsUsing(function (string $search) {
+                            return Charge::whereRelation('chargeListChargeType', function (Builder $query) {
+                                return $query->whereRelation('chargeList', function (Builder $query) {
+                                    return $query->whereRelation('linkedInsurances', function (Builder $query) {
+                                        return $query->whereRelation('insurance', 'id', Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id);
+                                    });
+                                });
+                            })
+                                ->where('name', 'like', "%{$search}%")
+                                ->orWhere('price', 'like', "%{$search}%")
+                                ->pluck('name', 'id');
+                        })/* 
+                                    ->getOptionLabelUsing(function ($component, $value): string {
+                                        $charge = Charge::find($value);
+                                  
+                                        return static::getCleanOptionString($charge);
+                                    }) */
+                        ->reactive()
+                        ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
+                            $charge = Charge::find($state);
+                            if ($charge) {
+                                $set('sold_at', $charge->price);
+                                $set('unit_price', $charge->price);
+                                $set('quantity', 1);
+                                $set('total_price', $charge->price * 1);
+                            } else {
+                                $set('sold_at', '');
+                                $set('unit_price', '');
+                                $set('quantity', '');
+                                $set('total_price', '');
+                            }
+                        })
+                        ->columnSpan(3)
+                        ->required(),
+                    TextInput::make('sold_at')
+                        ->numeric()
+                        ->extraInputAttributes(["readonly" => "true"]),
+                    /* ->mask(
+                                        fn (Mask $mask) => $mask
+                                            ->patternBlocks([
+                                                'money' => fn (Mask $mask) => $mask
+                                                    ->numeric()
+                                                    ->thousandsSeparator(',')
+                                                    ->decimalSeparator('.'),
+                                            ])
+                                            ->pattern('FRw money'),
+                                    ), */
+                    TextInput::make('quantity')
+                        ->numeric()
+                        ->reactive()
+                        ->afterStateUpdated(function (Closure $get, Closure $set, $state) {
+                            $set('total_price', $get('sold_at') * $state);
+                        })
+                        ->required(),
+                    TextInput::make('total_price')
+                        ->numeric()
+                        ->disabled()
+                    /* ->mask(
+                                        fn (Mask $mask) => $mask
+                                            ->patternBlocks([
+                                                'money' => fn (Mask $mask) => $mask
+                                                    ->numeric()
+                                                    ->thousandsSeparator(',')
+                                                    ->decimalSeparator('.'),
+                                            ])
+                                            ->pattern('FRw money'),
+                                    ) */
+                ])
+                ->columns(6)
+                ->columnSpan(2)
+                ->collapsible()
+        ];
     }
 }
