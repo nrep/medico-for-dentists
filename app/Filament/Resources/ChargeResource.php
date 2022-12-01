@@ -141,7 +141,10 @@ class ChargeResource extends Resource
                     ->money('rwf')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make("insurances.name")
+                TagsColumn::make("insurances.name")
+                    ->label("Insurance")
+                    ->getStateUsing(fn (Charge $record) => $record->chargeListChargeType->chargeList->linkedInsurances()->first()?->insurance->name)
+                    ->separator(',')
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
