@@ -12,6 +12,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -791,14 +792,27 @@ class InsurancesReports extends Page implements HasTable
         return Excel::download(new InvoicesExport, 'invoices.xlsx');
     }
 
+    public function exportIPD()
+    {
+        return Excel::download(new InvoicesExport("IPD"), 'invoices.xlsx');
+    }
+
     protected function getTableActions(): array
     {
         $actions = [];
         if (!$this->insurance_id) {
-            $actions[] = Action::make('Export')
-                ->action('export')
-                ->icon('heroicon-s-download')
-                ->hidden(fn (Model $record) => $record?->id !== 5);
+            $actions[] = ActionGroup::make([
+                Action::make('Export OPD')
+                    ->label('Export OPD')
+                    ->action('export')
+                    ->icon('heroicon-s-download')
+                    ->hidden(fn (Model $record) => $record?->id !== 5),
+                Action::make('Export IPD')
+                    ->label('Export IPD')
+                    ->action('exportIPD')
+                    ->icon('heroicon-s-download')
+                    ->hidden(fn (Model $record) => $record?->id !== 5)
+            ]);
         }
         return $actions;
     }

@@ -13,17 +13,27 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, WithHeadings
 {
+    public function __construct($department = "OPD")
+    {
+        $this->department = $department;
+    }
+
     /**
      * @return \Illuminate\Support\Collection
      */
     public function collection()
     {
+        $department = $this->department;
         $invoices = Invoice::whereRelation('session', function (Builder $query) {
             return $query->whereRelation('fileInsurance', 'insurance_id', 5);
         })
-            ->whereRelation('charges', function (Builder $query) {
-                return $query->whereRelation('charge', function (Builder $query) {
-                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', '!=', 5);
+            ->whereRelation('charges', function (Builder $query) use ($department) {
+                return $query->whereRelation('charge', function (Builder $query) use ($department) {
+                    if ($department == "OPD") {
+                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', '!=', 5);
+                    } else if ($department == "IPD") {
+                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                    }
                 });
             })
             ->get();
@@ -51,7 +61,7 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
 
             if ($i == 0) {
                 $subArray[] = $invoice->session->date;
-                $subArray[] = "OPD";
+                $subArray[] = $this->department;
                 $subArray[] = $invoice->session->fileInsurance->specific_data['affiliation_number'];
                 $subArray[] = $invoice->session->fileInsurance->file->names;
                 $subArray[] = $invoice->session->fileInsurance->file->sex;
