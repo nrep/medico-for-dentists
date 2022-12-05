@@ -107,6 +107,9 @@ class InsurancesReports extends Page implements HasTable
                                 ->whereRelation('charge', function (Builder $query) {
                                     return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
                                 })
+                                ->whereRelation('charge', function (Builder $query) {
+                                    return $query->whereRaw('name NOT REGEXP "HOSPITAL VISIT"');
+                                })
                                 ->sum('total_price');
                         }),
                     TextColumn::make('session.id')
@@ -143,7 +146,8 @@ class InsurancesReports extends Page implements HasTable
                                 ->whereRelation('charge', function (Builder $query) {
                                     return $query->whereRelation('chargeListChargeType', function (Builder $query) {
                                         return $query->whereNotIn('charge_type_id', [1, 2, 28, 5, 3]);
-                                    });
+                                    })
+                                    ->orWhereRaw('name REGEXP "HOSPITAL VISIT"');
                                 })
                                 ->sum('total_price');
                         }),
