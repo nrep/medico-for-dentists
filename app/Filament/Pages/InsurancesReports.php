@@ -105,10 +105,8 @@ class InsurancesReports extends Page implements HasTable
                         ->getStateUsing(function (Invoice $record) {
                             return $record->charges()
                                 ->whereRelation('charge', function (Builder $query) {
-                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
-                                })
-                                ->whereRelation('charge', function (Builder $query) {
-                                    return $query->whereRaw('name NOT REGEXP "HOSPITAL VISIT"');
+                                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1)
+                                        ->whereRaw('name NOT REGEXP "HOSPITAL VISIT"');
                                 })
                                 ->sum('total_price');
                         }),
