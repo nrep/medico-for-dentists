@@ -265,12 +265,12 @@ class InvoiceResource extends Resource
                                 ->where('name', 'like', "%{$search}%")
                                 ->orWhere('price', 'like', "%{$search}%")
                                 ->pluck('name', 'id');
-                        })/* 
-                                    ->getOptionLabelUsing(function ($component, $value): string {
-                                        $charge = Charge::find($value);
-                                  
-                                        return static::getCleanOptionString($charge);
-                                    }) */
+                        })
+                        ->getOptionLabelUsing(function ($component, $value): string {
+                            $charge = Charge::find($value);
+
+                            return $charge->name . ' - ' . $charge->price;
+                        })
                         ->reactive()
                         ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
                             $charge = Charge::find($state);
