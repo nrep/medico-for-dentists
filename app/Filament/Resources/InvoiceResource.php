@@ -254,23 +254,6 @@ class InvoiceResource extends Resource
                         })
                         ->allowHtml()
                         ->searchable()
-                        ->getSearchResultsUsing(function (string $search) {
-                            return Charge::whereRelation('chargeListChargeType', function (Builder $query) {
-                                return $query->whereRelation('chargeList', function (Builder $query) {
-                                    return $query->whereRelation('linkedInsurances', function (Builder $query) {
-                                        return $query->whereRelation('insurance', 'id', Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id);
-                                    });
-                                });
-                            })
-                                ->where('name', 'like', "%{$search}%")
-                                ->orWhere('price', 'like', "%{$search}%")
-                                ->pluck('name', 'id');
-                        })/* 
-                                    ->getOptionLabelUsing(function ($component, $value): string {
-                                        $charge = Charge::find($value);
-                                  
-                                        return static::getCleanOptionString($charge);
-                                    }) */
                         ->reactive()
                         ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
                             $charge = Charge::find($state);
