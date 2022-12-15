@@ -47,10 +47,12 @@ class InsuranceResource extends Resource
                             ->relationship('discounts')
                             ->schema([
                                 TextInput::make('display_name')
-                                    ->required(),
+                                    ->required()
+                                    ->reactive(),
                                 TextInput::make('discount')
                                     ->numeric()
-                                    ->required(),
+                                    ->required()
+                                    ->reactive(),
                                 TextInput::make('insured_pays')
                                     ->numeric()
                                     ->required(),
@@ -60,6 +62,16 @@ class InsuranceResource extends Resource
                             ])
                             ->columns(4)
                             ->columnSpan(2)
+                            ->reactive()
+                            ->afterStateUpdated(function ($state) {
+                                dd($state);
+                            })
+                            ->afterStateHydrated(function ($state) {
+                                $repeaterData = $state[array_keys($state)[0]];
+                                if ($repeaterData['discount']) {
+                                    dd($repeaterData);
+                                }
+                            }),
                     ])
             ]);
     }

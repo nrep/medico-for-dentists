@@ -254,6 +254,7 @@ class InvoiceResource extends Resource
                         })
                         ->allowHtml()
                         ->searchable()
+<<<<<<< HEAD
                         ->getSearchResultsUsing(function (string $search) {
                             return Charge::whereRelation('chargeListChargeType', function (Builder $query) {
                                 return $query->whereRelation('chargeList', function (Builder $query) {
@@ -271,6 +272,8 @@ class InvoiceResource extends Resource
 
                             return $charge->name . ' - ' . $charge->price;
                         })
+=======
+>>>>>>> 7c2a7c234369b9a4a2ac58b01322faa42ab8ddd9
                         ->reactive()
                         ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
                             $charge = Charge::find($state);
