@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Exports\InvoiceReportExport;
 use App\Models\Insurance;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
@@ -11,6 +12,7 @@ use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -18,6 +20,7 @@ use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class UserInvoicesReport extends Page implements HasTable

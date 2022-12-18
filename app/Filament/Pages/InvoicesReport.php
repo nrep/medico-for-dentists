@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Exports\InvoiceReportExport;
+use App\Exports\InvoicesExport;
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Employee;
 use App\Models\Insurance;
@@ -13,7 +15,10 @@ use Carbon\Carbon;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Pages\Actions\Action;
 use Filament\Pages\Page;
+use Filament\Tables\Actions\Action as ActionsAction;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -21,8 +26,10 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\Layout;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
@@ -66,7 +73,7 @@ class InvoicesReport extends Page implements HasTable
             ->join('users AS u', 'invoice_items.done_by', 'u.id')
             ->join('employees', 'invoice_days.doctor_id', 'employees.id')
             ->when(auth()->user()->hasRole('Cashier') && !auth()->user()->hasAnyRole(['Admin', 'Data Manager']), fn (Builder $query) => $query->where('invoice_payments.done_by', auth()->id()))
-            ->groupBy('invoice_id');
+            ->groupBy('invoice_days.invoice_id');
     }
 
     protected function getTableColumns(): array
@@ -289,25 +296,15 @@ class InvoicesReport extends Page implements HasTable
         ];
     }
 
-    protected function getTableBulkActions(): array
+    public function export()
     {
-        return [
-            ExportBulkAction::make()
-                ->exports([
-                    ExcelExport::make('table')->fromModel()
-                ]),
-        ];
+        return Excel::download(new InvoicesExport, 'invoices.xlsx');
     }
 
-    /* public function getCachedTableHeaderActions(): array
+    protected function getTableRecordsPerPageSelectOptions(): array
     {
-        return [
-            ExportAction::make()
-                ->exports([
-                    ExcelExport::make('table')->fromTable()
-                ]),
-        ];
-    } */
+        return [10, 25, 50, 100, -1];
+    }
 
     protected function getTableRecordUrlUsing(): Closure
     {
@@ -324,8 +321,19 @@ class InvoicesReport extends Page implements HasTable
         return 2;
     }
 
-    /* protected function getTableFiltersLayout(): ?string
+    public function getActions(): array
     {
-        return Layout::AboveContent;
-    } */
+        return [
+            Action::make('export')
+                ->label('Export')
+                ->action(function () {
+                    $doneBy = $this->tableFilters['done_by']['done_by'];
+                    $userName = User::find($doneBy)?->name;
+                    $date = $this->tableFilters["date"]["date"];
+                    $date = Carbon::parse($date)->toFormattedDateString();
+                    return Excel::download(new InvoiceReportExport($this->tableFilters), "Patients billed by " . $userName . " on " . $date . ".xlsx");
+                })
+                ->icon('heroicon-s-download')
+        ];
+    }
 }
