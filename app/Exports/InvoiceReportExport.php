@@ -48,6 +48,9 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->when($this->filters['done_by'], function (Builder $query, array $data): Builder {
                 return $query->where('invoice_payments.done_by', $data['done_by']);
             })
+            ->when($this->filters['insurance_id'], function (Builder $query, array $data): Builder {
+                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', fn (Builder $query) => $query->whereRelation('discount', 'insurance_id', $data['insurance_id'])));
+            })
             ->when(auth()->user()->hasRole('Cashier') && !auth()->user()->hasAnyRole(['Admin', 'Data Manager']), fn (Builder $query) => $query->where('invoice_payments.done_by', auth()->id()))
             ->groupBy('invoice_days.invoice_id')
             ->get();
