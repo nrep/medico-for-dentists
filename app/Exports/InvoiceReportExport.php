@@ -30,7 +30,7 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
     public function collection()
     {
         $invoicePayments = InvoicePayment::select(
-            'invoice_payments.invoice_id',
+            'invoice_days.invoice_id',
             DB::raw('SUM(DISTINCT(invoice_payments.amount)) AS paid'),
             DB::raw('GROUP_CONCAT(users.name) AS paid_to'),
             DB::raw('GROUP_CONCAT(u.name) AS collaborators'),
