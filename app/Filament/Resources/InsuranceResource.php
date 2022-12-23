@@ -2,12 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\InsurancesReportExport;
 use App\Filament\Resources\InsuranceResource\Pages;
 use App\Filament\Resources\InsuranceResource\RelationManagers;
 use App\Models\Insurance;
+use Carbon\Carbon;
+use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Modal\Actions\Action;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -16,6 +22,8 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\ReplicateAction;
 use Filament\Tables\Columns\TagsColumn;
@@ -24,6 +32,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Maatwebsite\Excel\Facades\Excel;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class InsuranceResource extends Resource
 {
@@ -92,17 +102,66 @@ class InsuranceResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                ReplicateAction::make()
-                    ->excludeAttributes(['name'])
-                    ->form([
-                        TextInput::make('name')->required(),
-                    ])
-                    ->beforeReplicaSaved(function (Model $replica, array $data): void {
-                        $replica->fill($data);
-                    }),
-                DeleteAction::make()
+                ActionGroup::make([
+                    ReplicateAction::make()
+                        ->excludeAttributes(['name'])
+                        ->form([
+                            TextInput::make('name')->required(),
+                        ])
+                        ->beforeReplicaSaved(function (Model $replica, array $data): void {
+                            $replica->fill($data);
+                        }),
+                    DeleteAction::make()
+                ])
             ])
             ->bulkActions([
+                BulkAction::make('export')
+                    ->label('Export overall report')
+                    ->form([
+                        Grid::make()
+                            ->schema([
+                                Select::make('period')
+                                    ->options([
+                                        'current-month' => 'This month',
+                                        'weekly' => 'This week',
+                                        'today' => 'Today',
+                                        'custom' => 'Custom'
+                                    ])
+                                    ->required()
+                                    ->default('current-month')
+                                    ->reactive()
+                                    ->columnSpan(2)
+                                    ->searchable()
+                                    ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
+                                        switch ($state) {
+                                            case 'today':
+                                                $set('since', date('Y-m-d'));
+                                                $set('until', date('Y-m-d'));
+                                                break;
+                                            case 'weekly':
+                                                $set('since', Carbon::parse(date('Y-m-d'))->startOfWeek(1));
+                                                $set('until', Carbon::parse(date('Y-m-d'))->endOfWeek(1));
+                                                break;
+                                            case 'current-month':
+                                                $set('since', Carbon::parse(date('Y-m-d'))->startOfMonth());
+                                                $set('until', Carbon::parse(date('Y-m-d'))->endOfMonth()->subDay());
+                                                break;
+                                            default:
+                                                # code...
+                                                break;
+                                        }
+                                    }),
+                                DatePicker::make('since')
+                                    ->default(Carbon::parse(date('Y-m-d'))->startOfMonth())
+                                    ->disabled(fn ($get) => $get('period') !== 'custom'),
+                                DatePicker::make('until')
+                                    ->default(Carbon::parse(date('Y-m-d'))->endOfMonth())
+                                    ->disabled(fn ($get) => $get('period') !== 'custom')
+                            ])
+                    ])
+                    ->action(function ($records, $data) {
+                        return Excel::download(new InsurancesReportExport($records, $data), $data['period']."'s insurances.xlsx");
+                    }),
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }

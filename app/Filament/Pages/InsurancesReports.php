@@ -646,40 +646,6 @@ class InsurancesReports extends Page implements HasTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('sessions.name')
-                    ->label('Number of Bills')
-                    ->getStateUsing(fn (Insurance $record) => $record->sessions()->count())
-                    ->formatStateUsing(fn ($state) => number_format($state)),
-                TextColumn::make('sessions.id')
-                    ->label('Total')
-                    ->getStateUsing(function (Insurance $record) {
-                        $total = 0;
-                        foreach ($record->sessions as $session) {
-                            $total += $session?->invoice?->charges()->sum('total_price');
-                        }
-                        return $total;
-                    }),
-                TextColumn::make('sessions.ids')
-                    ->label('Insurance')
-                    ->getStateUsing(function (Insurance $record) {
-                        $total = 0;
-                        foreach ($record->sessions as $session) {
-                            $discount = $session->discount->discount > 0 ? $session->discount->discount / 100 : $session->discount->discount;
-                            $total += $session?->invoice?->charges()->sum('total_price') * $discount;
-                        }
-                        return $total;
-                    }),
-                TextColumn::make('sessions.idsi')
-                    ->label('Patient pays')
-                    ->getStateUsing(function (Insurance $record) {
-                        $total = 0;
-                        foreach ($record->sessions as $session) {
-                            $discount = $session->discount->discount > 0 ? $session->discount->discount / 100 : $session->discount->discount;
-                            // $insuredPays = $session->discount->insured_pays > 0 ? $session->discount->insured_pays / 100 : $session->discount->insured_pays;
-                            $total += $session?->invoice?->charges()->sum('total_price') - ($session?->invoice?->charges()->sum('total_price') * $discount);
-                        }
-                        return $total;
-                    }),
             ];
         }
 
