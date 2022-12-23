@@ -29,7 +29,10 @@ class InsurancesReportExport implements FromCollection, ShouldAutoSize, WithHead
         $array = [];
 
         foreach ($this->records as $insurance) {
-            $currentSessions = $insurance->sessions()->whereDate('date', '>=', $this->filters['since'])->whereDate('date', '<=', $this->filters['until']);
+            $currentSessions = $insurance->sessions()
+                ->whereDate('date', '>=', $this->filters['since'])
+                ->whereDate('date', '<=', $this->filters['until'])
+                ->whereHas('invoice');
             $subArray = [
                 $insurance->name,
                 $currentSessions->count()
