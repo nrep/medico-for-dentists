@@ -54,6 +54,7 @@ class DoctorTransactionsReport extends Page implements HasTable
             ->join('invoice_days', 'invoices.id', 'invoice_days.invoice_id')
             ->join('employees', 'invoice_days.doctor_id', 'employees.id')
             ->join('invoice_items', 'invoice_days.id', 'invoice_items.invoice_day_id')
+            ->where('invoice_days.number', 1)
             ->groupBy(['invoice_days.doctor_id', 'employees.names']);
         return $query;
     }
