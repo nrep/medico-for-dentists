@@ -40,8 +40,12 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
 
         $chargeTypes = ChargeType::all();
 
+        $number = 0;
+
         foreach ($invoices as $invoice) {
             $invoice->numberOfRows = 1;
+            $number += 1;
+            $invoice->number = $number;
             foreach ($chargeTypes as $chargeType) {
                 $count = $invoice->charges()->whereRelation('charge', fn (Builder $query) => $query->whereRelation('chargeListChargeType', 'charge_type_id', $chargeType->id))->count();
                 if ($count > $invoice->numberOfRows) {
@@ -60,6 +64,7 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
             $subArray = [];
 
             if ($i == 0) {
+                $subArray[] = $invoice->number;
                 $subArray[] = $invoice->session->date;
                 $subArray[] = $this->department;
                 $subArray[] = $invoice->session->fileInsurance->specific_data['affiliation_number'];
