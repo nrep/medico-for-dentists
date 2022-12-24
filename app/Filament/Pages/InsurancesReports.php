@@ -757,12 +757,12 @@ class InsurancesReports extends Page implements HasTable
 
     public function export()
     {
-        return Excel::download(new InvoicesExport, 'invoices.xlsx');
+        return Excel::download(new InvoicesExport('OPD', $this->tableFilters), 'invoices.xlsx');
     }
 
     public function exportIPD()
     {
-        return Excel::download(new InvoicesExport("IPD"), 'invoices.xlsx');
+        return Excel::download(new InvoicesExport("IPD", $this->tableFilters), 'invoices.xlsx');
     }
 
     protected function getTableActions(): array

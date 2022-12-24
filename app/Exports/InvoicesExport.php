@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\ChargeType;
 use App\Models\Invoice;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -13,9 +14,10 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, WithHeadings
 {
-    public function __construct($department = "OPD")
+    public function __construct($department = "OPD", $filters)
     {
         $this->department = $department;
+        $this->filters = $filters;
     }
 
     /**
@@ -25,7 +27,9 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
     {
         $department = $this->department;
         $invoices = Invoice::whereRelation('session', function (Builder $query) {
-            return $query->whereRelation('fileInsurance', 'insurance_id', 5);
+            return $query->whereRelation('fileInsurance', 'insurance_id', 5)
+                ->whereDate('date', '>=', Carbon::parse($this->filters['period']['since'])->format('Y-m-d'))
+                ->whereDate('date', '<=', Carbon::parse($this->filters['period']['until'])->format('Y-m-d'));
         })
             ->whereRelation('charges', function (Builder $query) use ($department) {
                 return $query->whereRelation('charge', function (Builder $query) use ($department) {
