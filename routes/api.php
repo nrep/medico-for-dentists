@@ -47,7 +47,7 @@ Route::get('/send-message', function (Request $request) {
     $data = array(
         "sender" => 'PMP',
         "recipients" => "0781625173,0791923312,0788283213",
-        "message" => $message. " Total: " . number_format($total) . " RWF",
+        "message" => $message. ", Total: " . number_format($total) . " RWF",
     );
 
     $url = "https://www.intouchsms.co.rw/api/sendsms/.json";
