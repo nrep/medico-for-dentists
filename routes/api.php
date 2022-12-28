@@ -29,7 +29,7 @@ Route::get('/send-message', function (Request $request) {
         ->where('invoice_payments.created_at', '<=', $until)
         ->groupBy('payment_mean_id')
         ->select(
-            DB::raw('payment_means.name as name'),
+            DB::raw('DISTINCT(payment_means.name) as name'),
             DB::raw('sum(invoice_payments.amount) as amount')
         )
         ->get();
