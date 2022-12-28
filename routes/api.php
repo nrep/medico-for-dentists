@@ -23,10 +23,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/send-message', function (Request $request) {
     $since = Carbon::parse(Carbon::now()->yesterday()->format('Y-m-d') . ' 08:29:59')->format('Y-m-d H:i:s');
     $until = Carbon::parse(date('Y-m-d') . ' 08:30:00')->format('Y-m-d H:i:s');
-    $paidAmount = InvoicePayment::where('created_at', '>=', $since)
-        ->where('created_at', '<=', $until)
+    $paidAmount = InvoicePayment::join('payment_means', 'payment_means.id', '=', 'invoice_payments.payment_mean_id')
+        ->where('invoice_payments.created_at', '>=', $since)
+        ->where('invoice_payments.created_at', '<=', $until)
         ->groupBy('payment_mean_id')
-        ->selectRaw('sum(amount) as amount, payment_mean_id')
+        ->selectRaw('sum(invoice_payments.amount) as amount, invoice_payments.payment_mean_id, payment_means.name')
         ->get();
     dd($paidAmount);
     $data = array(
