@@ -36,10 +36,9 @@ Route::get('/send-message', function (Request $request) {
     $message = "Mwaramutse, guhera $since kugeza $until, amafaranga yishyujwe kuri caisse ni: " . $paidAmount->map(function ($item) {
         return $item->name . ": " . number_format($item->amount) . " RWF";
     })->implode(', ');
-    dd($message);
     $data = array(
         "sender" => 'PMP',
-        "recipients" => "0781625173,0791923312",
+        "recipients" => "0781625173,0791923312,0788283213",
         "message" => $message,
     );
 
