@@ -3,6 +3,7 @@
 use App\Models\InvoicePayment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,7 +28,10 @@ Route::get('/send-message', function (Request $request) {
         ->where('invoice_payments.created_at', '>=', $since)
         ->where('invoice_payments.created_at', '<=', $until)
         ->groupBy('payment_mean_id')
-        ->selectRaw('sum(invoice_payments.amount) as amount, invoice_payments.payment_mean_id, payment_means.name')
+        ->select(
+            DB::raw('payment_means.name as name'),
+            DB::raw('sum(invoice_payments.amount) as amount')
+        )
         ->get();
     dd($paidAmount);
     $data = array(
