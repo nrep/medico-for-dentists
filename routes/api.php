@@ -33,13 +33,21 @@ Route::get('/send-message', function (Request $request) {
             DB::raw('sum(invoice_payments.amount) as amount')
         )
         ->get();
+
+    $total = 0;
+
+    foreach ($paidAmount as $item) {
+        $total += $item->amount;
+    }
+
     $message = "Mwaramutse, guhera $since kugeza $until, amafaranga yishyujwe kuri caisse ni: " . $paidAmount->map(function ($item) {
         return $item->name . ": " . number_format($item->amount) . " RWF";
     })->implode(', ');
+
     $data = array(
         "sender" => 'PMP',
         "recipients" => "0781625173,0791923312,0788283213",
-        "message" => $message,
+        "message" => $message. " Total: " . number_format($total) . " RWF",
     );
 
     $url = "https://www.intouchsms.co.rw/api/sendsms/.json";
