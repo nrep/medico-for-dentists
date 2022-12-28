@@ -22,8 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/send-message', function (Request $request) {
-    $since = Carbon::parse(Carbon::now()->yesterday()->format('Y-m-d') . ' 08:29:59')->format('Y-m-d H:i:s');
-    $until = Carbon::parse(date('Y-m-d') . ' 08:30:00')->format('Y-m-d H:i:s');
+    $since = Carbon::parse(Carbon::now()->yesterday()->format('Y-m-d') . ' 08:30:00')->format('Y-m-d H:i:s');
+    $until = Carbon::parse(date('Y-m-d') . ' 08:29:59')->format('Y-m-d H:i:s');
     $paidAmount = InvoicePayment::join('payment_means', 'payment_means.id', '=', 'invoice_payments.payment_mean_id')
         ->where('invoice_payments.created_at', '>=', $since)
         ->where('invoice_payments.created_at', '<=', $until)
@@ -34,7 +34,7 @@ Route::get('/send-message', function (Request $request) {
         )
         ->get();
     $message = "Mwaramutse, guhera $since kugeza $until, amafaranga yishyujwe kuri caisse ni: " . $paidAmount->map(function ($item) {
-        return $item->name . ": " . number_format($item->amount);
+        return $item->name . ": " . number_format($item->amount) . " RWF";
     })->implode(', ');
     dd($message);
     $data = array(
