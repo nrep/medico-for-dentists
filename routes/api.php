@@ -27,9 +27,9 @@ Route::get('/send-message', function (Request $request) {
     $paidAmount = InvoicePayment::join('payment_means', 'payment_means.id', '=', 'invoice_payments.payment_mean_id')
         ->where('invoice_payments.created_at', '>=', $since)
         ->where('invoice_payments.created_at', '<=', $until)
-        ->groupBy('payment_mean_id')
+        ->groupBy('payment_means.name')
         ->select(
-            DB::raw('DISTINCT(payment_means.name) as name'),
+            DB::raw('payment_means.name as name'),
             DB::raw('sum(invoice_payments.amount) as amount')
         )
         ->get();
