@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('sms:send')->timezone('Africa/Cairo')
-            ->dailyAt('15:12');
+            ->dailyAt('08:30');
     }
 
     /**
