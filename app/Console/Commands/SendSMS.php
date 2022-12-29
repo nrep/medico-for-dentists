@@ -54,7 +54,7 @@ class SendSMS extends Command
 
         $data = array(
             "sender" => 'PMP',
-            "recipients" => "0781625173,0791923312",
+            "recipients" => "0791923312,0788283212",
             "message" => $message . ", Total: " . number_format($total) . " RWF",
         );
 
