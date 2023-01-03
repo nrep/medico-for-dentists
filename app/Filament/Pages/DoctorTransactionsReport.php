@@ -95,7 +95,7 @@ class DoctorTransactionsReport extends Page implements HasTable
     protected function getTableFilters(): array
     {
         return [
-            Filter::make('date')
+            Filter::make('since')
                 ->form([
                     DatePicker::make('date')
                         ->default(now()),
@@ -105,11 +105,27 @@ class DoctorTransactionsReport extends Page implements HasTable
                         return null;
                     }
 
-                    return 'Received on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    return 'Received since ' . Carbon::parse($data['date'])->toFormattedDateString();
                 })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
-                    return $query->where('date', $data['date']);
+                    return $query->where('date', '>=', $data['date']);
+                }),
+            Filter::make('until')
+                ->form([
+                    DatePicker::make('date')
+                        ->default(now()),
+                ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['date']) {
+                        return null;
+                    }
+
+                    return 'Until ' . Carbon::parse($data['date'])->toFormattedDateString();
+                })
+                ->query(function (Builder $query, array $data): Builder {
+                    $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+                    return $query->where('date', '<=', $data['date']);
                 }),
             Filter::make('Insurance')
                 ->form([
