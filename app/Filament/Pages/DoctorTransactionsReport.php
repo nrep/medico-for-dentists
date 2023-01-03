@@ -95,7 +95,7 @@ class DoctorTransactionsReport extends Page implements HasTable
     protected function getTableFilters(): array
     {
         return [
-            Filter::make('since')
+            Filter::make('Since')
                 ->form([
                     DatePicker::make('date')
                         ->default(now()),
@@ -111,7 +111,7 @@ class DoctorTransactionsReport extends Page implements HasTable
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
                     return $query->where('date', '>=', $data['date']);
                 }),
-            Filter::make('until')
+            Filter::make('Until')
                 ->form([
                     DatePicker::make('date')
                         ->default(now()),
