@@ -75,7 +75,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.specific_data.voucher_number')
                         ->label('Voucher Identification')
                         ->sortable()
-                        ->formatStateUsing(fn ($state) => "40440006/" . $state . "/" . date('y')),
+                        ->formatStateUsing(fn ($state, $record) => "40440006/" . $state . "/" . substr($record->session->date, 2, 2)),
                     TextColumn::make('session.fileInsurance.specific_data.member_number')
                         ->label("Beneficiary's Affiliation No")
                         ->sortable(),
