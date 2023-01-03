@@ -345,9 +345,11 @@ class InvoicesReport extends Page implements HasTable
                 ->action(function () {
                     $doneBy = $this->tableFilters['done_by']['done_by'];
                     $userName = User::find($doneBy)?->name;
-                    $date = $this->tableFilters["date"]["date"];
-                    $date = Carbon::parse($date)->toFormattedDateString();
-                    return Excel::download(new InvoiceReportExport($this->tableFilters), "Patients billed by " . $userName . " on " . $date . ".xlsx");
+                    $since = $this->tableFilters["Since"]["since"];
+                    $until = $this->tableFilters["Until"]["until"];
+                    $since = Carbon::parse($since)->toFormattedDateString();
+                    $until = Carbon::parse($until)->toFormattedDateString();
+                    return Excel::download(new InvoiceReportExport($this->tableFilters), "Patients billed by " . $userName . " since " . $since . " until " . $until . ".xlsx");
                 })
                 ->icon('heroicon-s-download')
         ];
