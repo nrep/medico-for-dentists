@@ -66,14 +66,11 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->groupBy('invoice_days.invoice_id')
             ->get();
 
-        dd($invoicePayments);
-
         return $invoicePayments;
     }
 
     public function map($invoicePayment): array
     {
-        dd($invoicePayment);
         $array = [];
 
         $array[] = "PROV-" . sprintf("%06d", $invoicePayment->invoice->session_id);
