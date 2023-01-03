@@ -73,15 +73,6 @@ class InsuranceResource extends Resource
                             ->columns(4)
                             ->columnSpan(2)
                             ->reactive()
-                            ->afterStateUpdated(function ($state) {
-                                dd($state);
-                            })
-                            ->afterStateHydrated(function ($state) {
-                                $repeaterData = $state[array_keys($state)[0]];
-                                if ($repeaterData['discount']) {
-                                    dd($repeaterData);
-                                }
-                            }),
                     ])
             ]);
     }
