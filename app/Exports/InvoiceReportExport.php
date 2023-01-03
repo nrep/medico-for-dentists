@@ -41,21 +41,32 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->join('invoice_items', 'invoice_days.id', 'invoice_items.invoice_day_id')
             ->join('users AS u', 'invoice_items.done_by', 'u.id')
             ->join('employees', 'invoice_days.doctor_id', 'employees.id')
+            ->join('invoices', 'invoice_payments.invoice_id', 'invoices.id')
+            ->join('sessions', 'invoices.session_id', 'sessions.id')
+            ->join('discounts', 'sessions.discount_id', 'discounts.id')
             ->when($this->filters['Since'], function (Builder $query, $data) {
                 $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
-                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '>=', $data['date']));
+                return $query->where('sessions.date', '>=', $data['date']);
+            })
+            ->when($this->filters['Until'], function (Builder $query, $data) {
+                $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
+                return $query->where('sessions.date', '<=', $data['date']);
             })
             ->when($this->filters['done_by'], function (Builder $query, array $data): Builder {
                 return $query->where('invoice_payments.done_by', $data['done_by']);
             })
             ->when($this->filters['Insurance'], function (Builder $query, array $data): Builder {
-                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', fn (Builder $query) => $query->whereRelation('discount', 'insurance_id', $data['insurance_id'])));
+                if ($data['insurance_id'] == null) {
+                    return $query;
+                } else {
+                    return $query->where('discounts.insurance_id', $data['insurance_id']);
+                }
             })
             ->when(auth()->user()->hasRole('Cashier') && !auth()->user()->hasAnyRole(['Admin', 'Data Manager']), fn (Builder $query) => $query->where('invoice_payments.done_by', auth()->id()))
             ->groupBy('invoice_days.invoice_id')
             ->get();
 
-        dd($this->filters, $invoicePayments);
+        dd($invoicePayments);
 
         return $invoicePayments;
     }
