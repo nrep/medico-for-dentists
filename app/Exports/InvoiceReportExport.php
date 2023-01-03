@@ -64,6 +64,7 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
 
     public function map($invoicePayment): array
     {
+        dd($invoicePayment);
         $array = [];
 
         $array[] = "PROV-" . sprintf("%06d", $invoicePayment->invoice->session_id);
