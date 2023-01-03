@@ -43,11 +43,11 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->join('employees', 'invoice_days.doctor_id', 'employees.id')
             ->when($this->filters['Since'], function (Builder $query, $data) {
                 $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
-                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
+                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '>=', $data['date']));
             })
             ->when($this->filters['Until'], function (Builder $query, $data) {
                 $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
-                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
+                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '<=', $data['date']));
             })
             ->when($this->filters['done_by'], function (Builder $query, array $data): Builder {
                 return $query->where('invoice_payments.done_by', $data['done_by']);
