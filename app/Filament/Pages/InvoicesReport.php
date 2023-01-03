@@ -188,7 +188,7 @@ class InvoicesReport extends Page implements HasTable
     protected function getTableFilters(): array
     {
         return [
-            Filter::make('date')
+            Filter::make('Since')
                 ->form([
                     DatePicker::make('date')
                         ->default(now()),
@@ -198,11 +198,27 @@ class InvoicesReport extends Page implements HasTable
                         return null;
                     }
 
-                    return 'Received on ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    return 'Received since ' . Carbon::parse($data['date'])->toFormattedDateString();
                 })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
-                    return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
+                    return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '>=', $data['date']));
+                }),
+            Filter::make('Until')
+                ->form([
+                    DatePicker::make('date')
+                        ->default(now()),
+                ])
+                ->indicateUsing(function (array $data): ?string {
+                    if (!$data['date']) {
+                        return null;
+                    }
+
+                    return 'Until ' . Carbon::parse($data['date'])->toFormattedDateString();
+                })
+                ->query(function (Builder $query, array $data): Builder {
+                    $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+                    return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '<=', $data['date']));
                 }),
             Filter::make('Insurance')
                 ->form([
