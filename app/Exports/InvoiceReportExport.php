@@ -59,6 +59,8 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->groupBy('invoice_days.invoice_id')
             ->get();
 
+        dd($invoicePayments);
+
         return $invoicePayments;
     }
 
