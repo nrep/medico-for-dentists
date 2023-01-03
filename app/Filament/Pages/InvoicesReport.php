@@ -190,34 +190,34 @@ class InvoicesReport extends Page implements HasTable
         return [
             Filter::make('Since')
                 ->form([
-                    DatePicker::make('date')
+                    DatePicker::make('since')
                         ->default(now()),
                 ])
                 ->indicateUsing(function (array $data): ?string {
-                    if (!$data['date']) {
+                    if (!$data['since']) {
                         return null;
                     }
 
-                    return 'Received since ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    return 'Received since ' . Carbon::parse($data['since'])->toFormattedDateString();
                 })
                 ->query(function (Builder $query, array $data): Builder {
-                    $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+                    $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
                     return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '>=', $data['date']));
                 }),
             Filter::make('Until')
                 ->form([
-                    DatePicker::make('date')
+                    DatePicker::make('until')
                         ->default(now()),
                 ])
                 ->indicateUsing(function (array $data): ?string {
-                    if (!$data['date']) {
+                    if (!$data['until']) {
                         return null;
                     }
 
-                    return 'Until ' . Carbon::parse($data['date'])->toFormattedDateString();
+                    return 'Until ' . Carbon::parse($data['until'])->toFormattedDateString();
                 })
                 ->query(function (Builder $query, array $data): Builder {
-                    $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+                    $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
                     return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '<=', $data['date']));
                 }),
             Filter::make('Insurance')
