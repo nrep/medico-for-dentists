@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize, WithHeadings
 {
     public $filters;
-    public $payments;
+    public $paymentMeans;
 
     public function __construct($tableFilters)
     {
@@ -41,8 +41,12 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->join('invoice_items', 'invoice_days.id', 'invoice_items.invoice_day_id')
             ->join('users AS u', 'invoice_items.done_by', 'u.id')
             ->join('employees', 'invoice_days.doctor_id', 'employees.id')
-            ->when($this->filters['date'], function (Builder $query, $data) {
-                $data['date'] = Carbon::parse($data['date'])->format('Y-m-d');
+            ->when($this->filters['since'], function (Builder $query, $data) {
+                $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
+                return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
+            })
+            ->when($this->filters['until'], function (Builder $query, $data) {
+                $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
                 return $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', $data['date']));
             })
             ->when($this->filters['done_by'], function (Builder $query, array $data): Builder {
