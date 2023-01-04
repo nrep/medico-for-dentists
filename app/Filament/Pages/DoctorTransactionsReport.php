@@ -46,7 +46,6 @@ class DoctorTransactionsReport extends Page implements HasTable
     protected function getTableQuery(): Builder
     {
         $query = Invoice::select(
-            'invoice_days.doctor_id',
             'employees.names',
             DB::raw("COUNT(*) AS total"),
             DB::raw('SUM(total_price) AS total_amount')
