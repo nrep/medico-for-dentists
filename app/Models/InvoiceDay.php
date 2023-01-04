@@ -21,7 +21,7 @@ class InvoiceDay extends Model
      */
     protected static function booted()
     {
-        /* static::created(function ($invoiceDay) {
+        static::created(function ($invoiceDay) {
             foreach ($invoiceDay->invoice->days as $key => $day) {
                 $day->number = $key + 1;
                 $day->save();
@@ -33,7 +33,7 @@ class InvoiceDay extends Model
                 $day->number = $key + 1;
                 $day->save();
             }
-        }); */
+        });
     }
 
     public function invoice()
