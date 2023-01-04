@@ -81,7 +81,7 @@ class DoctorTransactionsReport extends Page implements HasTable
 
     public function getTableRecordKey(Model $record): string
     {
-        return $record->doctor_id;
+        return $record->names;
     }
 
     protected function getTableBulkActions(): array
