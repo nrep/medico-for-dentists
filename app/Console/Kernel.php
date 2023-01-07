@@ -16,8 +16,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('sms:send')->timezone('Africa/Cairo')
+        $schedule->command('sms:send')
+            ->timezone('Africa/Cairo')
             ->dailyAt('08:30');
+        $schedule->command('files:export')
+            ->timezone('Africa/Cairo')
+            ->dailyAt('06:00');
     }
 
     /**
