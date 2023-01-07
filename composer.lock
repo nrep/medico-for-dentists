@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "169151434b3d99159e5eeccbb0337219",
+    "content-hash": "aacbf48fe97209da32b682f6d4e1b8c9",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -3614,6 +3614,65 @@
             "time": "2022-08-18T16:18:26+00:00"
         },
         {
+            "name": "mhmiton/laravel-modules-livewire",
+            "version": "v1.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mhmiton/laravel-modules-livewire.git",
+                "reference": "b53c5ee078b7e4653afec549d1d7134e0fa015d6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mhmiton/laravel-modules-livewire/zipball/b53c5ee078b7e4653afec549d1d7134e0fa015d6",
+                "reference": "b53c5ee078b7e4653afec549d1d7134e0fa015d6",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "laravel/framework": "^7.0|^8.0|^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Mhmiton\\LaravelModulesLivewire\\LaravelModulesLivewireServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Mhmiton\\LaravelModulesLivewire\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mehediul Hassan Miton",
+                    "email": "mhmiton.dev@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Using Laravel Livewire in Laravel Modules package with automatically registered livewire components for every modules.",
+            "keywords": [
+                "laravel",
+                "livewire",
+                "mhmiton",
+                "module",
+                "modules",
+                "nwidart"
+            ],
+            "support": {
+                "issues": "https://github.com/mhmiton/laravel-modules-livewire/issues",
+                "source": "https://github.com/mhmiton/laravel-modules-livewire/tree/v1.5.0"
+            },
+            "time": "2022-02-12T04:29:31+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "2.8.0",
             "source": {
@@ -5618,6 +5677,91 @@
                 "source": "https://github.com/sabberworm/PHP-CSS-Parser/tree/8.4.0"
             },
             "time": "2021-12-11T13:40:54+00:00"
+        },
+        {
+            "name": "savannabits/filament-modules",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/savannabits/filament-modules.git",
+                "reference": "fe9926fe0a47fadaf695d090befb7bee380b64e7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/savannabits/filament-modules/zipball/fe9926fe0a47fadaf695d090befb7bee380b64e7",
+                "reference": "fe9926fe0a47fadaf695d090befb7bee380b64e7",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^2.0",
+                "illuminate/contracts": "^9.0",
+                "livewire/livewire": "^2.10",
+                "mhmiton/laravel-modules-livewire": "^1.5",
+                "nwidart/laravel-modules": "^9.0",
+                "php": "^8.0",
+                "spatie/laravel-package-tools": "^1.13.5"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^6.0",
+                "nunomaduro/larastan": "^2.0.1",
+                "orchestra/testbench": "^7.0",
+                "pestphp/pest": "^1.21",
+                "pestphp/pest-plugin-laravel": "^1.1",
+                "pestphp/pest-plugin-livewire": "^1.0",
+                "pestphp/pest-plugin-parallel": "^0.3",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpunit/phpunit": "^9.5",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Savannabits\\FilamentModules\\FilamentModulesServiceProvider"
+                    ],
+                    "aliases": {
+                        "FilamentModules": "Savannabits\\FilamentModules\\Facades\\FilamentModules"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Savannabits\\FilamentModules\\": "src",
+                    "Savannabits\\FilamentModules\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam Maosa",
+                    "email": "smaosa@savannabits.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Use Filamentphp with nwiDart/laravel-modules",
+            "homepage": "https://github.com/savannabits/filament-modules",
+            "keywords": [
+                "filament-modules",
+                "laravel",
+                "savannabits"
+            ],
+            "support": {
+                "issues": "https://github.com/savannabits/filament-modules/issues",
+                "source": "https://github.com/savannabits/filament-modules/tree/v1.0.4"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/savannabits",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-01-03T20:50:23+00:00"
         },
         {
             "name": "spatie/image",
