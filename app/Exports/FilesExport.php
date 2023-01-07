@@ -24,7 +24,8 @@ class FilesExport implements FromCollection, WithMapping, WithHeadings, ShouldAu
             sprintf("%05d", $file->number) . '/' . $file->registration_year,
             $file->names,
         ];
-
+        
+        $insurances = "";
         $affiliationNumber = "";
 
         foreach ($file->linkedInsurances as $key => $linkedInsurance) {
@@ -41,12 +42,15 @@ class FilesExport implements FromCollection, WithMapping, WithHeadings, ShouldAu
             }
 
             if ($key == 0) {
+                $insurances = $linkedInsurance->insurance->name;
                 $affiliationNumber = $affNo;
             } else {
+                $insurances .= ", " . $linkedInsurance->insurance->name;
                 $affiliationNumber .= ", " . $affNo;
             }
         }
 
+        $array[] = $insurances;
         $array[] = $affiliationNumber;
 
         return $array;
