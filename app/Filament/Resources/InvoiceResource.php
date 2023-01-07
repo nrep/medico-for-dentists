@@ -258,7 +258,12 @@ class InvoiceResource extends Resource
                             return Charge::whereRelation('chargeListChargeType', function (Builder $query) {
                                 return $query->whereRelation('chargeList', function (Builder $query) {
                                     return $query->whereRelation('linkedInsurances', function (Builder $query) {
-                                        return $query->whereRelation('insurance', 'id', Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id);
+                                        $insuranceId = Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id;
+                                        if ($insuranceId) {
+                                            return $query->whereRelation('insurance', 'id', $insuranceId);
+                                        } else {
+                                            return $query;
+                                        }
                                     });
                                 });
                             })
