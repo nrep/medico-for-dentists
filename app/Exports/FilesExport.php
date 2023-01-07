@@ -61,6 +61,7 @@ class FilesExport implements FromCollection, WithMapping, WithHeadings, ShouldAu
         return [
             'File Number',
             'Name',
+            'Insurance',
             'Affiliation Number',
         ];
     }
