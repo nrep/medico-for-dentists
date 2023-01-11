@@ -29,10 +29,6 @@ class PaymentsRelationManager extends RelationManager
                 Select::make('payment_mean_id')
                     ->label('Payment Mean')
                     ->relationship('paymentMean', 'name')
-                    /* ->createOptionForm([
-                        TextInput::make('name')
-                            ->required(),
-                    ]) */
                     ->options(PaymentMean::all()->pluck('name', 'id'))
                     ->searchable()
                     ->required()

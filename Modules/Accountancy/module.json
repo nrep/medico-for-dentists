@@ -1,0 +1,11 @@
+{
+    "name": "Accountancy",
+    "alias": "accountancy",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Accountancy\\Providers\\AccountancyServiceProvider"
+    ],
+    "files": []
+}
