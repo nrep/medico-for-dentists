@@ -275,7 +275,7 @@ class FileResource extends Resource
                             ->schema([
                                 TextInput::make('name')
                                     ->columnSpan(4),
-                                PhoneInpuT::make('phone_number')
+                                PhoneInput::make('phone_number')
                                     ->initialCountry('rw')
                                     ->preferredCountries(['rw'])
                                     ->separateDialCode(true)
