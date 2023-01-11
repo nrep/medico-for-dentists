@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\BudgetLineResource\Pages\CreateBudgetLine;
+use App\Filament\Resources\BudgetLineResource\Pages\EditBudgetLine;
+use App\Filament\Resources\BudgetLineResource\Pages\ListBudgetLines;
+use App\Filament\Resources\BudgetLineResource\Pages\ViewBudgetLine;
 use App\Filament\Resources\BudgetLineResource\RelationManagers;
 use App\Models\BudgetLine;
 use Filament\Forms;
@@ -12,10 +16,6 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\CreateBudgetLine;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\EditBudgetLine;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\ListBudgetLines;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\ViewBudgetLine;
 use Savannabits\FilamentModules\Concerns\ContextualResource;
 
 class BudgetLineResource extends Resource

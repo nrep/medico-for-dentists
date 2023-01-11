@@ -3,6 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BudgetAccountTransactionResource\RelationManagers;
+use App\Filament\Resources\BudgetLineResource\Pages\CreateBudgetAccountTransaction;
+use App\Filament\Resources\BudgetLineResource\Pages\EditBudgetAccountTransaction;
+use App\Filament\Resources\BudgetLineResource\Pages\ListBudgetAccountTransactions;
+use App\Filament\Resources\BudgetLineResource\Pages\ViewBudgetAccountTransaction;
 use App\Models\BudgetAccount;
 use App\Models\BudgetAccountTransaction;
 use App\Models\BudgetSource;
@@ -21,10 +25,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\CreateBudgetAccountTransaction;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\EditBudgetAccountTransaction;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\ListBudgetAccountTransactions;
-use Modules\Accountancy\Filament\Resources\BudgetLineResource\Pages\ViewBudgetAccountTransaction;
 use Savannabits\FilamentModules\Concerns\ContextualResource;
 
 class BudgetAccountTransactionResource extends Resource

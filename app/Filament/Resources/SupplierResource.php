@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\SupplierResource\Pages\ManageSuppliers;
 use App\Filament\Resources\SupplierResource\RelationManagers;
 use App\Models\Supplier;
 use Filament\Forms;
@@ -14,7 +15,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Modules\Accountancy\Filament\Resources\SupplierResource\Pages\ManageSuppliers;
 use Savannabits\FilamentModules\Concerns\ContextualResource;
 use Ysfkaya\FilamentPhoneInput\PhoneInput;
 

@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ExpenseResource\Pages\CreateExpense;
+use App\Filament\Resources\ExpenseResource\Pages\EditExpense;
+use App\Filament\Resources\ExpenseResource\Pages\ListExpenses;
+use App\Filament\Resources\ExpenseResource\Pages\ViewExpense;
 use App\Filament\Resources\ExpenseResource\RelationManagers;
 use App\Models\BudgetAccount;
 use App\Models\BudgetLine;
@@ -21,10 +25,6 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Modules\Accountancy\Filament\Resources\ExpenseResource\Pages\CreateExpense;
-use Modules\Accountancy\Filament\Resources\ExpenseResource\Pages\EditExpense;
-use Modules\Accountancy\Filament\Resources\ExpenseResource\Pages\ListExpenses;
-use Modules\Accountancy\Filament\Resources\ExpenseResource\Pages\ViewExpense;
 use Savannabits\FilamentModules\Concerns\ContextualResource;
 
 class ExpenseResource extends Resource

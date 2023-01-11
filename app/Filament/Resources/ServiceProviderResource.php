@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceProviderResource\Pages;
+use App\Filament\Resources\ServiceProviderResource\Pages\ManageServiceProviders;
 use App\Filament\Resources\ServiceProviderResource\RelationManagers;
 use App\Models\ServiceProvider;
 use Closure;
@@ -17,7 +18,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Modules\Accountancy\Filament\Resources\ServiceProviderResource\Pages\ManageServiceProviders;
 use Savannabits\FilamentModules\Concerns\ContextualResource;
 use Ysfkaya\FilamentPhoneInput\PhoneInput;
 
