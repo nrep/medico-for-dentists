@@ -75,7 +75,8 @@ class ExpenseResource extends Resource
                                 Type::make(Supplier::class)->titleColumnName('name'),
                                 Type::make(ServiceProvider::class)->titleColumnName('name'),
                                 Type::make(File::class)->titleColumnName('names')
-                                    ->getOptionLabelFromRecordUsing(fn (File $record): string => "{$record->names} - ".sprintf('%05d', $record->number)."/{$record->registration_year}"),
+                                    ->label('Patient')
+                                    ->getOptionLabelFromRecordUsing(fn (File $record): string => "{$record->names} - " . sprintf('%05d', $record->number) . "/{$record->registration_year}"),
                             ])
                             ->searchable()
                             ->required()
