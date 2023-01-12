@@ -11,6 +11,7 @@ use App\Models\BudgetAccount;
 use App\Models\BudgetLine;
 use App\Models\Employee;
 use App\Models\Expense;
+use App\Models\File;
 use App\Models\PaymentMean;
 use App\Models\ServiceProvider;
 use App\Models\Supplier;
@@ -73,6 +74,8 @@ class ExpenseResource extends Resource
                                 Type::make(Employee::class)->titleColumnName('names'),
                                 Type::make(Supplier::class)->titleColumnName('name'),
                                 Type::make(ServiceProvider::class)->titleColumnName('name'),
+                                Type::make(File::class)->titleColumnName('names')
+                                    ->getOptionLabelFromRecordUsing(fn (File $record): string => "{$record->names} - ".sprintf('%05d', $record->number)."/{$record->registration_year}"),
                             ])
                             ->searchable()
                             ->required()
