@@ -18,13 +18,10 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Savannabits\FilamentModules\Concerns\ContextualResource;
 use Ysfkaya\FilamentPhoneInput\PhoneInput;
 
 class ServiceProviderResource extends Resource
 {
-    use ContextualResource;
-
     protected static ?string $model = ServiceProvider::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
