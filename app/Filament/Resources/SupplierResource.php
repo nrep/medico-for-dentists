@@ -20,8 +20,6 @@ use Ysfkaya\FilamentPhoneInput\PhoneInput;
 
 class SupplierResource extends Resource
 {
-    use ContextualResource;
-
     protected static ?string $model = Supplier::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
