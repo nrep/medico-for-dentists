@@ -16,4 +16,9 @@ class BudgetLine extends Model
         'initial_amount',
         'year',
     ];
+
+    public function expenseItems()
+    {
+        return $this->hasMany(ExpenseItem::class);
+    }
 }
