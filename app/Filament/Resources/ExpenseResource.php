@@ -26,6 +26,7 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use Savannabits\FilamentModules\Concerns\ContextualResource;
 
 class ExpenseResource extends Resource
@@ -78,6 +79,7 @@ class ExpenseResource extends Resource
                                     ->label('Patient')
                                     ->getOptionLabelFromRecordUsing(fn (File $record): string => "{$record->names} - " . sprintf('%05d', $record->number) . "/{$record->registration_year}"),
                             ])
+                            ->label('Receiver')
                             ->searchable()
                             ->required()
                             ->reactive()
@@ -151,16 +153,24 @@ class ExpenseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('bill_no'),
-                Tables\Columns\TextColumn::make('account.name'),
-                Tables\Columns\TextColumn::make('paymentMean.name'),
+                Tables\Columns\TextColumn::make('bill_no')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('account.name')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('paymentMean.name')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('expenseable_id')
                     ->label('Receiver')
                     ->getStateUsing(function (Expense $record) {
                         return $record->expenseable?->names ?? $record->expenseable?->name;
                     }),
                 Tables\Columns\TextColumn::make('date')
-                    ->date(),
+                    ->date()
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->getStateUsing(fn (Expense $record) => $record->items()->sum('amount')),
             ])
@@ -172,6 +182,7 @@ class ExpenseResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                ExportBulkAction::make(),
                 Tables\Actions\DeleteBulkAction::make(),
                 Tables\Actions\ForceDeleteBulkAction::make(),
                 Tables\Actions\RestoreBulkAction::make(),
