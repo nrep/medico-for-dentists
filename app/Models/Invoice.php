@@ -13,6 +13,12 @@ class Invoice extends Model
 
     protected $fillable = [
         "session_id",
+        'discount_id',
+        'specific_data',
+    ];
+
+    protected $casts = [
+        'specific_data' => 'array',
     ];
 
     public function session()
@@ -33,5 +39,10 @@ class Invoice extends Model
     public function payments()
     {
         return $this->hasMany(InvoicePayment::class);
+    }
+
+    public function discount()
+    {
+        return $this->belongsTo(Discount::class);
     }
 }
