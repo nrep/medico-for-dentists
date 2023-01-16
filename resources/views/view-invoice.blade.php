@@ -53,7 +53,7 @@
                     ])>
                     @php
                     $total = $record->charges->sum('total_price');
-                    $insurancePays = round($total * ($record->session->discount->discount / 100), 0);
+                    $insurancePays = round($total * ($record->discount->discount / 100), 0);
                     $patientPays = $total - $insurancePays;
                     @endphp
                     <tr class="bg-gray-50">
@@ -126,7 +126,7 @@
                             ])>
                             @php
                             $total = $record->charges->sum('total_price');
-                            $insurancePays = round($total * ($record->session->discount->discount / 100), 0);
+                            $insurancePays = round($total * ($record->discount->discount / 100), 0);
                             $patientPays = $total - $insurancePays;
                             @endphp
                             <tr class="bg-gray-500/5">

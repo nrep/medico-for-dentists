@@ -66,7 +66,7 @@ class SessionsRelationManager extends RelationManager
                         }
 
                         if ($totalAmount > 0) {
-                            $insuracePays = $totalAmount * $record->invoice->session->discount->discount / 100;
+                            $insuracePays = $totalAmount * $record->invoice->discount->discount / 100;
                         }
 
                         return number_format(round($insuracePays));
@@ -84,7 +84,7 @@ class SessionsRelationManager extends RelationManager
                         }
 
                         if ($totalAmount > 0) {
-                            $patientPays = $totalAmount * (100 - $record->invoice->session->discount->discount) / 100;
+                            $patientPays = $totalAmount * (100 - $record->invoice->discount->discount) / 100;
                         }
 
                         return number_format(round($patientPays));
@@ -107,7 +107,7 @@ class SessionsRelationManager extends RelationManager
                         }
 
                         if ($totalAmount > 0) {
-                            $patientPays = $totalAmount * (100 - $record->invoice->session->discount->discount) / 100;
+                            $patientPays = $totalAmount * (100 - $record->invoice->discount->discount) / 100;
                         }
 
                         return number_format(round($record?->invoice?->payments()->sum('amount') - $patientPays));

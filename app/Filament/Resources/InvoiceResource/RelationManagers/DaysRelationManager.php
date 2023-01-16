@@ -57,7 +57,7 @@ class DaysRelationManager extends RelationManager
                     ->sortable()
                     ->getStateUsing(function (InvoiceDay $record) {
                         $total = $record->items()->sum('total_price');
-                        $discount = $record->invoice->session->discount->discount;
+                        $discount = $record->invoice->discount->discount;
                         return $discount > 0 ? round($total * ($discount / 100)) : 0;
                     }),
                 TextColumn::make('patient')
@@ -65,7 +65,7 @@ class DaysRelationManager extends RelationManager
                     ->sortable()
                     ->getStateUsing(function (InvoiceDay $record) {
                         $total = $record->items()->sum('total_price');
-                        $insuredPays = $record->invoice->session->discount->insured_pays;
+                        $insuredPays = $record->invoice->discount->insured_pays;
                         return $insuredPays > 0 ? round($total * ($insuredPays / 100)) : 0;
                     }),
             ])

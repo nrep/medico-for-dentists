@@ -64,14 +64,97 @@ class InvoiceResource extends Resource
     {
         return $form
             ->schema([
-                InvoiceResource::getSessionIdFormField(),
-                InvoiceResource::getNumberOfDaysFormField(),
-                Repeater::make('days')
-                    ->relationship()
-                    ->schema(InvoiceResource::getDaysSchema())
-                    ->columnSpan(2)
-                    ->columns(2)
-                    ->collapsible()
+                Card::make()
+                    ->schema([
+                        Select::make('discount_id')
+                            ->label('Percentage to be paid (T.M)')
+                            ->options(function ($record, $livewire) {
+                                if ($livewire->session) {
+                                    return $livewire->session->fileInsurance->insurance
+                                        ->discounts()
+                                        ->pluck('display_name', 'id');
+                                } else if ($record->session) {
+                                    return $record->session->fileInsurance->insurance
+                                        ->discounts()
+                                        ->pluck('display_name', 'id');
+                                }
+                                return [];
+                            })
+                            ->searchable()
+                            ->required(true),
+                        TextInput::make('specific_data.voucher_number')
+                            ->prefix("40440006/")
+                            ->suffix("/" . date('y'))
+                            ->hidden(function ($record, $livewire) {
+                                $bool = true;
+                                if ($livewire->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 4) {
+                                        $bool = false;
+                                    }
+                                } else if ($record->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 4) {
+                                        $bool = false;
+                                    }
+                                }
+                                return $bool;
+                            })
+                            ->required(function ($record, $livewire) {
+                                $bool = false;
+                                if ($livewire->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 4) {
+                                        $bool = true;
+                                    }
+                                } else if ($record->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 4) {
+                                        $bool = true;
+                                    }
+                                }
+                                return $bool;
+                            }),
+                        TextInput::make('specific_data.invoice_number')
+                            ->hidden(function ($record, $livewire) {
+                                $bool = true;
+                                if ($livewire->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 7) {
+                                        $bool = false;
+                                    }
+                                } else if ($record->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 7) {
+                                        $bool = false;
+                                    }
+                                }
+                                return $bool;
+                            })
+                            ->required(function ($record, $livewire) {
+                                $bool = false;
+                                if ($livewire->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 7) {
+                                        $bool = true;
+                                    }
+                                } else if ($record->session?->file_insurance_id) {
+                                    $insurance = FileInsurance::find($livewire->session->file_insurance_id)->insurance;
+                                    if ($insurance->id == 7) {
+                                        $bool = true;
+                                    }
+                                }
+                                return $bool;
+                            }),
+                        InvoiceResource::getSessionIdFormField(),
+                        InvoiceResource::getNumberOfDaysFormField(),
+                        Repeater::make('days')
+                            ->relationship()
+                            ->schema(InvoiceResource::getDaysSchema())
+                            ->columnSpan(2)
+                            ->columns(2)
+                            ->collapsible()
+                    ])
             ]);
     }
 

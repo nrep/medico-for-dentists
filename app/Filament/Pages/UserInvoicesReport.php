@@ -92,7 +92,7 @@ class UserInvoicesReport extends Page implements HasTable
 
                     foreach (explode(",", $record->invoice_ids) as $invoiceId) {
                         $invoice = Invoice::find($invoiceId);
-                        $insuranceDiscounts += ($invoice->charges()->sum('total_price') * $invoice->session->discount->discount) / 100;
+                        $insuranceDiscounts += ($invoice->charges()->sum('total_price') * $invoice->discount->discount) / 100;
                     }
 
                     return $insuranceDiscounts;
@@ -106,7 +106,7 @@ class UserInvoicesReport extends Page implements HasTable
 
                     foreach (explode(",", $record->invoice_ids) as $invoiceId) {
                         $invoice = Invoice::find($invoiceId);
-                        $insuranceDiscounts += ($invoice->charges()->sum('total_price') * $invoice->session->discount->insured_pays) / 100;
+                        $insuranceDiscounts += ($invoice->charges()->sum('total_price') * $invoice->discount->insured_pays) / 100;
                     }
 
                     return $insuranceDiscounts;

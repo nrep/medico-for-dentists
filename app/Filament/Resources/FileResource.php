@@ -371,7 +371,7 @@ class FileResource extends Resource
                                         ->required()
                                         ->default($record->linkedInsurances()->first()->id)
                                         ->reactive(),
-                                    Select::make('discount_id')
+                                    /* Select::make('discount_id')
                                         ->label('Percentage to be paid (T.M)')
                                         ->options(function (callable $get) {
                                             if ($get('file_insurance_id')) {
@@ -427,7 +427,7 @@ class FileResource extends Resource
                                                 }
                                             }
                                             return $bool;
-                                        })
+                                        }) */
                                 ])
                                 ->columns(2)
                         ];

@@ -55,7 +55,7 @@ class SessionResource extends Resource
                     ->searchable()
                     ->required()
                     ->reactive(),
-                Select::make('discount_id')
+                /* Select::make('discount_id')
                     ->label('Percentage to be paid (T.M)')
                     ->options(function (callable $get) {
                         if ($get('file_insurance_id')) {
@@ -80,16 +80,6 @@ class SessionResource extends Resource
                         }
                         return $bool;
                     })
-                    /* ->columnSpan(function (Closure $get) {
-                                                    $columnSpan = 2;
-                                                    if ($get('file_insurance_id')) {
-                                                        $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
-                                                        if (count($insurance->discounts) > 1) {
-                                                            $columnSpan = 1;
-                                                        }
-                                                    }
-                                                    return $columnSpan;
-                                                }) */
                     ->required(function (Closure $get) {
                         $bool = false;
                         if ($get('file_insurance_id')) {
@@ -99,7 +89,7 @@ class SessionResource extends Resource
                             }
                         }
                         return $bool;
-                    })
+                    }) */
             ]);
     }
 
@@ -205,7 +195,7 @@ class SessionResource extends Resource
                                         ->required()
                                         ->default($record->fileInsurance->file->linkedInsurances->first()->id)
                                         ->reactive(),
-                                    Select::make('discount_id')
+                                    /* Select::make('discount_id')
                                         ->label('Percentage to be paid (T.M)')
                                         ->options(function (callable $get) {
                                             if ($get('file_insurance_id')) {
@@ -232,16 +222,6 @@ class SessionResource extends Resource
                                             }
                                             return $bool;
                                         })
-                                        /* ->columnSpan(function (Closure $get) {
-                                        $columnSpan = 2;
-                                        if ($get('file_insurance_id')) {
-                                            $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
-                                            if (count($insurance->discounts) > 1) {
-                                                $columnSpan = 1;
-                                            }
-                                        }
-                                        return $columnSpan;
-                                    }) */
                                         ->required(function (Closure $get) {
                                             $bool = false;
                                             if ($get('file_insurance_id')) {
@@ -251,7 +231,7 @@ class SessionResource extends Resource
                                                 }
                                             }
                                             return $bool;
-                                        })
+                                        }) */
                                 ])
                                 ->columns(2),
                         ];

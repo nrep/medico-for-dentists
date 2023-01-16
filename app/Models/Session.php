@@ -28,11 +28,6 @@ class Session extends Model
         return $this->belongsTo(FileInsurance::class);
     }
 
-    public function discount()
-    {
-        return $this->belongsTo(Discount::class);
-    }
-
     public function invoice()
     {
         return $this->hasOne(Invoice::class);
