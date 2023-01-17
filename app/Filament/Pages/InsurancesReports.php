@@ -167,7 +167,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("Total Amount 85%")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             } else if ($this->insurance_id == 6 || $this->insurance_id == 9) {
@@ -242,7 +242,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("A Payer Par SORAS")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             } else if ($this->insurance_id == 7) {
@@ -353,12 +353,12 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.iddddd')
                         ->label("Copay")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->insured_pays != 100 ? $record?->session->discount->insured_pays / 100 : $record?->session->discount->insured_pays));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->insured_pays != 100 ? $record?->discount->insured_pays / 100 : $record?->discount->insured_pays));
                         }),
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("Payable by BRITAM")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             } else if ($this->insurance_id == 8) {
@@ -421,7 +421,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("Total a Payer")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             } else if ($this->insurance_id == 11) {
@@ -493,7 +493,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("Total Amount")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             } else if ($this->insurance_id == 12) {
@@ -565,7 +565,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("A Payer Par RADIANT")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             } else if ($this->insurance_id == 13 || $this->insurance_id == 14 || $this->insurance_id == 15) {
@@ -637,7 +637,7 @@ class InsurancesReports extends Page implements HasTable
                     TextColumn::make('session.fileInsurance.specific_data.idddd')
                         ->label("Total Amount")
                         ->getStateUsing(function (Invoice $record) {
-                            return round($record->charges()->sum('total_price') * ($record?->session->discount->discount > 0 ? $record?->session->discount->discount / 100 : $record?->session->discount->discount));
+                            return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
             }
