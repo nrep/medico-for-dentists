@@ -72,7 +72,7 @@ class InsurancesReports extends Page implements HasTable
                         ->label('Date')
                         ->searchable()
                         ->sortable(),
-                    TextColumn::make('session.specific_data.voucher_number')
+                    TextColumn::make('specific_data.voucher_number')
                         ->label('Voucher Identification')
                         ->sortable()
                         ->formatStateUsing(fn ($state, $record) => "40440006/" . $state . "/" . substr($record->session->date, 2, 2)),
