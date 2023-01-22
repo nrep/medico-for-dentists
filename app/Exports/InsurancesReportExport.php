@@ -40,7 +40,7 @@ class InsurancesReportExport implements FromCollection, ShouldAutoSize, WithHead
 
             $overallTotal = $overallDiscountedTotal = $overallPatientPays = 0;
             foreach ($currentSessions->get() as $session) {
-                $discount = $session->discount->discount > 0 ? $session->discount->discount / 100 : $session->discount->discount;
+                $discount = $session?->invoice->discount->discount > 0 ? $session?->invoice->discount->discount / 100 : $session?->invoice->discount->discount;
                 $total = $session?->invoice?->charges()->sum('total_price');
                 $discountedTotal = $total * $discount;
                 $patientPays = $total - $discountedTotal;
