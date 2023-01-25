@@ -204,7 +204,7 @@ class UserInvoicesReport extends Page implements HasTable
                 })
                 ->query(function (Builder $query, array $data): Builder {
                     if (isset($data['insurance_id'])) {
-                        $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', fn (Builder $query) => $query->whereRelation('discount', 'insurance_id', $data['insurance_id'])));
+                        $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('discount', 'insurance_id', $data['insurance_id']));
                     }
                     return $query;
                 }),
