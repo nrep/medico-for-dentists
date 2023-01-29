@@ -14,10 +14,16 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, WithHeadings
 {
-    public function __construct($department = "OPD", $filters)
+    public $filters;
+    public $department;
+    public $insuranceId;
+
+    public function __construct(array $filters, int $insuranceId = 5, string $department = "OPD")
     {
+        // dd($filters, $insuranceId);
         $this->department = $department;
         $this->filters = $filters;
+        $this->insuranceId = $insuranceId;
     }
 
     /**
@@ -26,17 +32,20 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
     public function collection()
     {
         $department = $this->department;
+        $insuranceId = $this->insuranceId;
         $invoices = Invoice::whereRelation('session', function (Builder $query) {
-            return $query->whereRelation('fileInsurance', 'insurance_id', 5)
+            return $query->whereRelation('fileInsurance', 'insurance_id', $this->insuranceId)
                 ->whereDate('date', '>=', Carbon::parse($this->filters['period']['since'])->format('Y-m-d'))
                 ->whereDate('date', '<=', Carbon::parse($this->filters['period']['until'])->format('Y-m-d'));
         })
-            ->whereRelation('charges', function (Builder $query) use ($department) {
-                return $query->whereRelation('charge', function (Builder $query) use ($department) {
-                    if ($department == "OPD") {
-                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', '!=', 5);
-                    } else if ($department == "IPD") {
-                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+            ->whereRelation('charges', function (Builder $query) use ($department, $insuranceId) {
+                return $query->whereRelation('charge', function (Builder $query) use ($department, $insuranceId) {
+                    if ($insuranceId == 5) {
+                        if ($department == "OPD") {
+                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', '!=', 5);
+                        } else if ($department == "IPD") {
+                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                        }
                     }
                 });
             })
@@ -46,14 +55,16 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
 
         $number = 0;
 
-        foreach ($invoices as $invoice) {
-            $invoice->numberOfRows = 1;
-            $number += 1;
-            $invoice->number = $number;
-            foreach ($chargeTypes as $chargeType) {
-                $count = $invoice->charges()->whereRelation('charge', fn (Builder $query) => $query->whereRelation('chargeListChargeType', 'charge_type_id', $chargeType->id))->count();
-                if ($count > $invoice->numberOfRows) {
-                    $invoice->numberOfRows = $count;
+        if ($this->insuranceId == 5) {
+            foreach ($invoices as $invoice) {
+                $invoice->numberOfRows = 1;
+                $number += 1;
+                $invoice->number = $number;
+                foreach ($chargeTypes as $chargeType) {
+                    $count = $invoice->charges()->whereRelation('charge', fn (Builder $query) => $query->whereRelation('chargeListChargeType', 'charge_type_id', $chargeType->id))->count();
+                    if ($count > $invoice->numberOfRows) {
+                        $invoice->numberOfRows = $count;
+                    }
                 }
             }
         }
@@ -64,130 +75,183 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
     public function map($invoice): array
     {
         $array = [];
-        for ($i = 0; $i < $invoice->numberOfRows; $i++) {
-            $subArray = [];
 
-            if ($i == 0) {
-                $subArray[] = $invoice->number;
-                $subArray[] = $invoice->session->date;
-                $subArray[] = $this->department;
-                $subArray[] = $invoice->session->fileInsurance->specific_data['affiliation_number'];
-                $subArray[] = $invoice->session->fileInsurance->file->names;
-                $subArray[] = $invoice->session->fileInsurance->file->sex;
-                $subArray[] = $invoice->session->fileInsurance->file->year_of_birth;
+        if ($this->insuranceId == 5) {
+            for ($i = 0; $i < $invoice->numberOfRows; $i++) {
+                $subArray = [];
 
-                // Category of beneficiary
-                // Is affiliated
-                $subArray[] = $invoice->session->fileInsurance->specific_data['category_of_beneficiary'] == "Affiliated" ? "v" : "";
-                // Is dependent;
-                $subArray[] = $invoice->session->fileInsurance->specific_data['category_of_beneficiary'] == "Dependent" ? "v" : "";
-                // Consulted by
-                $subArray[] = $invoice->days()->first()->consultedBy->names;
-                // Doctor level
-                $subArray[] = $invoice->days()->first()->consultedBy?->specific_data ? $invoice->days()->first()->consultedBy?->specific_data['Qualification'] : '';
-                // Consultation Fees
-                $subArray[] = $invoice->charges()
+                if ($i == 0) {
+                    $subArray[] = $invoice->number;
+                    $subArray[] = $invoice->session->date;
+                    $subArray[] = $this->department;
+                    $subArray[] = $invoice->session->fileInsurance->specific_data['affiliation_number'];
+                    $subArray[] = $invoice->session->fileInsurance->file->names;
+                    $subArray[] = $invoice->session->fileInsurance->file->sex;
+                    $subArray[] = $invoice->session->fileInsurance->file->year_of_birth;
+
+                    // Category of beneficiary
+                    // Is affiliated
+                    $subArray[] = $invoice->session->fileInsurance->specific_data['category_of_beneficiary'] == "Affiliated" ? "v" : "";
+                    // Is dependent;
+                    $subArray[] = $invoice->session->fileInsurance->specific_data['category_of_beneficiary'] == "Dependent" ? "v" : "";
+                    // Consulted by
+                    $subArray[] = $invoice->days()->first()->consultedBy->names;
+                    // Doctor level
+                    $subArray[] = $invoice->days()->first()->consultedBy?->specific_data ? $invoice->days()->first()->consultedBy?->specific_data['Qualification'] : '';
+                    // Consultation Fees
+                    $subArray[] = $invoice->charges()
+                        ->whereRelation('charge', function (Builder $query) {
+                            return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                        })
+                        ->sum('total_price');
+                } else {
+                    $subArray[] = '';
+                    $subArray[] = "";
+                    $subArray[] = '';
+                    $subArray[] = '';
+                    $subArray[] = '';
+                    $subArray[] = '';
+
+                    // Category of beneficiary
+                    // Is affiliated
+                    $subArray[] = "";
+                    // Is dependent;
+                    $subArray[] = "";
+                    // Consulted by
+                    $subArray[] = '';
+                    // Doctor level
+                    $subArray[] = '';
+                    // Consultation Fees
+                    $subArray[] = '';
+                }
+
+                // Laboratory Exams
+                // Exam
+                $charges = $invoice->charges()
                     ->whereRelation('charge', function (Builder $query) {
-                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
-                    })
-                    ->sum('total_price');
-            } else {
-                $subArray[] = '';
-                $subArray[] = "";
-                $subArray[] = '';
-                $subArray[] = '';
-                $subArray[] = '';
-                $subArray[] = '';
+                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                    });
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
+                // Number
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
+                // Amount
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
 
-                // Category of beneficiary
-                // Is affiliated
-                $subArray[] = "";
-                // Is dependent;
-                $subArray[] = "";
-                // Consulted by
-                $subArray[] = '';
-                // Doctor level
-                $subArray[] = '';
-                // Consultation Fees
-                $subArray[] = '';
+                // Imaging
+                $charges = $invoice->charges()
+                    ->whereRelation('charge', function (Builder $query) {
+                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 28);
+                    });
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
+                // Number
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
+                // Amount
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+
+                // Surgery
+                $charges = $invoice->charges()
+                    ->whereRelation('charge', function (Builder $query) {
+                        return $query->whereRelation('chargeListChargeType', fn (Builder $query) => $query->whereIn('charge_type_id', [10, 24]));
+                    });
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
+                // Number
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
+                // Amount
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+
+                // Acts
+                $charges = $invoice->charges()
+                    ->whereRelation('charge', function (Builder $query) {
+                        return $query->whereRelation('chargeListChargeType', fn (Builder $query) => $query->whereNotIn('charge_type_id', [1, 2, 28, 10, 24, 4, 3]));
+                    });
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
+                // Number
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
+                // Amount
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+
+                // Consummables
+                $charges = $invoice->charges()
+                    ->whereRelation('charge', function (Builder $query) {
+                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 4);
+                    });
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
+                // Number
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
+                // Amount
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+
+                // Drugs
+                $charges = $invoice->charges()
+                    ->whereRelation('charge', function (Builder $query) {
+                        return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                    });
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
+                // Number
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
+                // Amount
+                $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+
+                $totalPrice = $invoice->charges()->sum('total_price');
+
+                if ($i == 0) {
+                    $subArray[] = $totalPrice;
+
+                    $subArray[] = $totalPrice > 0 ? round($totalPrice * ($invoice->discount->discount / 100)) : '';
+                }
+
+                $array[] = $subArray;
             }
-
-            // Laboratory Exams
-            // Exam
-            $charges = $invoice->charges()
+        } else if ($this->insuranceId == 4) {
+            $array[] = $invoice->session->date;
+            $array[] = "40440006/" . $invoice->specific_data['voucher_number'] . "/" . substr($invoice->session->date, 2, 2);
+            $array[] = $invoice->session->fileInsurance->specific_data['member_number'];
+            $array[] = $invoice->session->fileInsurance->file->year_of_birth;
+            $array[] = $invoice->session->fileInsurance->file->sex;
+            $array[] = $invoice->session->fileInsurance->file->names;
+            $array[] = $invoice->session->fileInsurance->specific_data['affiliate_name'];
+            $array[] = $invoice->session->fileInsurance->specific_data['affiliate_affectation'];
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1)
+                        ->whereRaw('name NOT REGEXP "HOSPITAL VISIT"');
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
                 ->whereRelation('charge', function (Builder $query) {
                     return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
-                });
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
-            // Number
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
-            // Amount
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
-
-            // Imaging
-            $charges = $invoice->charges()
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
                 ->whereRelation('charge', function (Builder $query) {
                     return $query->whereRelation('chargeListChargeType', 'charge_type_id', 28);
-                });
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
-            // Number
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
-            // Amount
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
-
-            // Surgery
-            $charges = $invoice->charges()
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
                 ->whereRelation('charge', function (Builder $query) {
-                    return $query->whereRelation('chargeListChargeType', fn (Builder $query) => $query->whereIn('charge_type_id', [10, 24]));
-                });
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
-            // Number
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
-            // Amount
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                })
+                ->sum('total_price');
 
-            // Acts
-            $charges = $invoice->charges()
+            $array[] = $invoice->charges()
                 ->whereRelation('charge', function (Builder $query) {
-                    return $query->whereRelation('chargeListChargeType', fn (Builder $query) => $query->whereNotIn('charge_type_id', [1, 2, 28, 10, 24, 4, 3]));
-                });
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
-            // Number
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
-            // Amount
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
-
-            // Consummables
-            $charges = $invoice->charges()
-                ->whereRelation('charge', function (Builder $query) {
-                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 4);
-                });
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
-            // Number
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
-            // Amount
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
-
-            // Drugs
-            $charges = $invoice->charges()
+                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                        return $query->whereNotIn('charge_type_id', [1, 2, 28, 5, 3]);
+                    })
+                        ->orWhereRaw('name REGEXP "HOSPITAL VISIT"');
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
                 ->whereRelation('charge', function (Builder $query) {
                     return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
-                });
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]->charge?->name : '';
-            // Number
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->quantity : '';
-            // Amount
-            $subArray[] = isset($charges->get()[$i]) ? $charges->get()[$i]?->total_price : '';
+                })
+                ->sum('total_price');
 
-            $totalPrice = $invoice->charges()->sum('total_price');
+            $total = $invoice->charges()
+                ->sum('total_price');
 
-            if ($i == 0) {
-                $subArray[] = $totalPrice;
-
-                $subArray[] = $totalPrice > 0 ? round($totalPrice * ($invoice->session->discount->discount / 100)) : '';
-            }
-
-            $array[] = $subArray;
+            $array[] = $total;
+            $array[] = $total > 0 ? round($total * ($invoice?->discount->discount > 0 ? $invoice?->discount->discount / 100 : $invoice?->discount->discount)) : 0;
         }
 
         return $array;
@@ -195,38 +259,62 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
 
     public function headings(): array
     {
-        return [
-            'DATE',
-            'DEPARTMENT',
-            'Affiliation No',
-            'Names',
-            'Sex',
-            'AGE',
-            'Affiliated',
-            'Dependent',
-            'Consultation',
-            'Consulting Dr/Level',
-            'CONSULTATION FEES',
-            'EXAM',
-            'NUMBER',
-            'AMOUNT',
-            'TYPES',
-            'NUMBER',
-            'AMOUNT',
-            'TYPES',
-            'NUMBER',
-            'AMOUNT',
-            'TYPES',
-            'NUMBER',
-            'AMOUNT',
-            'TYPES',
-            'NUMBER',
-            'AMOUNT',
-            'TYPES',
-            'NUMBER',
-            'AMOUNT',
-            'TOTAL 100%',
-            'TOTAL 85%'
-        ];
+        $headings = [];
+        if ($this->insuranceId == 5) {
+            $headings = [
+                'DATE',
+                'DEPARTMENT',
+                'Affiliation No',
+                'Names',
+                'Sex',
+                'AGE',
+                'Affiliated',
+                'Dependent',
+                'Consultation',
+                'Consulting Dr/Level',
+                'CONSULTATION FEES',
+                'EXAM',
+                'NUMBER',
+                'AMOUNT',
+                'TYPES',
+                'NUMBER',
+                'AMOUNT',
+                'TYPES',
+                'NUMBER',
+                'AMOUNT',
+                'TYPES',
+                'NUMBER',
+                'AMOUNT',
+                'TYPES',
+                'NUMBER',
+                'AMOUNT',
+                'TYPES',
+                'NUMBER',
+                'AMOUNT',
+                'TOTAL 100%',
+                'TOTAL 85%'
+            ];
+        } else if ($this->insuranceId == 4) {
+            $headings = [
+                'Date',
+                'Voucher Identification',
+                "Beneficiary's Affiliation No",
+                "Beneficiary's Age",
+                "Beneficiary's Sex",
+                "Beneficiary's Names",
+                "Affiliated's Names",
+                "Affiliated's Affectation",
+                'Cost For Consultation 100%',
+                'Cost For Laboratory Tests 100%',
+                'Cost For Medical Imaging 100%',
+                'Cost For Hospitalization 100%',
+                'Cost For Procedures & Materials 100%',
+                'Cost For Medicines 100%',
+                'Total Amount 100%',
+                'Total Amount 85%'
+            ];
+        }
+
+        return $headings;
     }
 }

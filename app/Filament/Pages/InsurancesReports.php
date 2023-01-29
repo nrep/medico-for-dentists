@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Closure;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Pages;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
@@ -145,7 +146,7 @@ class InsurancesReports extends Page implements HasTable
                                     return $query->whereRelation('chargeListChargeType', function (Builder $query) {
                                         return $query->whereNotIn('charge_type_id', [1, 2, 28, 5, 3]);
                                     })
-                                    ->orWhereRaw('name REGEXP "HOSPITAL VISIT"');
+                                        ->orWhereRaw('name REGEXP "HOSPITAL VISIT"');
                                 })
                                 ->sum('total_price');
                         }),
@@ -757,12 +758,15 @@ class InsurancesReports extends Page implements HasTable
 
     public function export()
     {
-        return Excel::download(new InvoicesExport('OPD', $this->tableFilters), 'invoices.xlsx');
+        if ($this->insurance_id) {
+            return Excel::download(new InvoicesExport($this->tableFilters, $this->insurance_id), 'invoices.xlsx');    
+        }
+        return Excel::download(new InvoicesExport($this->tableFilters), 'invoices.xlsx');
     }
 
     public function exportIPD()
     {
-        return Excel::download(new InvoicesExport("IPD", $this->tableFilters), 'invoices.xlsx');
+        return Excel::download(new InvoicesExport($this->tableFilters, 5, "IPD"), 'invoices.xlsx');
     }
 
     protected function getTableActions(): array
@@ -783,5 +787,18 @@ class InsurancesReports extends Page implements HasTable
             ]);
         }
         return $actions;
+    }
+
+    public function getActions(): array
+    {
+        return [
+            Pages\Actions\Action::make('Export')
+                ->label('Export')
+                ->action(function () {
+                    return $this->export();
+                })
+                ->icon('heroicon-s-download')
+                ->hidden(fn () => $this->insurance_id !== 4),
+        ];
     }
 }

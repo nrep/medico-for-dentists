@@ -19,7 +19,8 @@
             <div>Date: {{ date('d/m/Y', strtotime($record->session->date)) }}</div>
             <div>Names: {{ $record->session->fileInsurance->file->names }}</div>
 
-            <table class="filament-tables-table w-full text-left rtl:text-right divide-y table-auto dark:divide-gray-700">
+            <table
+                class="filament-tables-table w-full text-left rtl:text-right divide-y table-auto dark:divide-gray-700">
                 <thead>
                     <tr class="bg-gray-500/5">
                         <th>N&deg;</th>
@@ -29,7 +30,9 @@
                         <th>Total Price</th>
                     </tr>
                 </thead>
-                <tbody wire:sortable wire:end.stop="reorderTable($event.target.sortable.toArray())" wire:sortable.options="{ animation: 100 }" @class([ 'divide-y whitespace-nowrap' , 'dark:divide-gray-700'=> config('tables.dark_mode'),
+                <tbody wire:sortable wire:end.stop="reorderTable($event.target.sortable.toArray())"
+                    wire:sortable.options="{ animation: 100 }" @class([ 'divide-y whitespace-nowrap'
+                    , 'dark:divide-gray-700'=> config('tables.dark_mode'),
                     ])>
                     @php
                     $number = 0;
@@ -61,12 +64,12 @@
                         <td>{{ $record->charges->sum('total_price') }}</td>
                     </tr>
                     <tr class="bg-gray-50">
-                        <th colspan="4">Insurance</th>
-                        <td>{{ $insurancePays }}</td>
-                    </tr>
-                    <tr class="bg-gray-50">
                         <th colspan="4">Patient</th>
                         <td>{{ $patientPays }}</td>
+                    </tr>
+                    <tr class="bg-gray-50">
+                        <th colspan="4">Insurance</th>
+                        <td>{{ $insurancePays }}</td>
                     </tr>
                 </tfoot>
             </table>
@@ -79,7 +82,9 @@
     <x-filament::hr />
     @endif
 
-    <x-filament::resources.relation-managers :active-manager="$activeRelationManager" :form-tab-label="$this->getFormTabLabel()" :managers="$relationManagers" :owner-record="$record" :page-class="static::class">
+    <x-filament::resources.relation-managers :active-manager="$activeRelationManager"
+        :form-tab-label="$this->getFormTabLabel()" :managers="$relationManagers" :owner-record="$record"
+        :page-class="static::class">
         @if ($this->hasCombinedRelationManagerTabsWithForm())
         <x-slot name="form">
             {{-- {{ $this->form }} --}}
@@ -88,11 +93,15 @@
                     <div style="font-weight: bold">POLYCLINIQUE MEDICALE LA PROVIDENCE</div>
                     <div><span style="font-weight: bold">Tel:</span> 0784022096</div>
                     <div><span style="font-weight: bold">TIN:</span> 106636995</div>
-                    <div><span style="font-weight: bold">Invoice N&deg;:</span> PROV-{{ sprintf('%06d', $record->session->id) }}</div>
-                    <div><span style="font-weight: bold">Date:</span> {{ date('d/m/Y', strtotime($record->session->date)) }}</div>
-                    <div><span style="font-weight: bold">Names:</span> {{ $record->session->fileInsurance->file->names }}</div>
+                    <div><span style="font-weight: bold">Invoice N&deg;:</span> PROV-{{ sprintf('%06d',
+                        $record->session->id) }}</div>
+                    <div><span style="font-weight: bold">Date:</span> {{ date('d/m/Y',
+                        strtotime($record->session->date)) }}</div>
+                    <div><span style="font-weight: bold">Names:</span> {{ $record->session->fileInsurance->file->names
+                        }}</div>
 
-                    <table class="filament-tables-table w-full text-left rtl:text-right divide-y table-auto dark:divide-gray-700">
+                    <table
+                        class="filament-tables-table w-full text-left rtl:text-right divide-y table-auto dark:divide-gray-700">
                         <thead>
                             <tr class="bg-gray-500/5">
                                 <th>N&deg;</th>
@@ -102,7 +111,9 @@
                                 <th>P.T</th>
                             </tr>
                         </thead>
-                        <tbody wire:sortable wire:end.stop="reorderTable($event.target.sortable.toArray())" wire:sortable.options="{ animation: 100 }" @class([ 'divide-y whitespace-nowrap' , 'dark:divide-gray-700'=> config('tables.dark_mode'),
+                        <tbody wire:sortable wire:end.stop="reorderTable($event.target.sortable.toArray())"
+                            wire:sortable.options="{ animation: 100 }" @class([ 'divide-y whitespace-nowrap'
+                            , 'dark:divide-gray-700'=> config('tables.dark_mode'),
                             ])>
                             @php
                             $number = 0;
@@ -122,7 +133,8 @@
                             @endforeach
                             @endforeach
                         </tbody>
-                        <tfoot @class([ 'divide-y whitespace-nowrap bg-gray-500/5' , 'dark:divide-gray-700'=> config('tables.dark_mode'),
+                        <tfoot @class([ 'divide-y whitespace-nowrap bg-gray-500/5' , 'dark:divide-gray-700'=>
+                            config('tables.dark_mode'),
                             ])>
                             @php
                             $total = $record->charges->sum('total_price');
@@ -133,13 +145,13 @@
                                 <th colspan="4">Total</th>
                                 <td style="font-weight: bold">{{ $record->charges->sum('total_price') }}</td>
                             </tr>
-                            <tr class="bg-gray-500/550">
-                                <th colspan="4">Insurance</th>
-                                <td style="font-weight: bold">{{ $insurancePays }}</td>
-                            </tr>
                             <tr class="bg-gray-500/5">
                                 <th colspan="4">Patient</th>
                                 <td style="font-weight: bold">{{ $patientPays }}</td>
+                            </tr>
+                            <tr class="bg-gray-500/550">
+                                <th colspan="4">Insurance</th>
+                                <td style="font-weight: bold">{{ $insurancePays }}</td>
                             </tr>
                             <tr class="bg-gray-500/5">
                                 <th colspan="4">Paid</th>
@@ -148,17 +160,21 @@
                         </tfoot>
                     </table>
                     @php
-                        $doneBy = "";
-                        foreach ($record->payments as $key => $payment) {
-                            $doneBy = $payment->recordedBy->name;
-                            if ($key != $record->payments()->count() - 1) {
-                                $doneBy .= ' and ';
-                            }
-                        }
+                    $doneBy = "";
+                    foreach ($record->payments as $key => $payment) {
+                    $doneBy = $payment->recordedBy->name;
+                    if ($key != $record->payments()->count() - 1) {
+                    $doneBy .= ' and ';
+                    }
+                    }
                     @endphp
                     <div class="flex justify-between">
-                        <div>Done by <span style="font-weight: bold">{{ $doneBy }}</span> on <span style="font-weight: bold">{{ date('d/m/Y', strtotime( $record->payments()->count() > 0 ? $record->payments()->latest()?->first()?->created_at : $record->charges()->latest()?->first()?->created_at)) }}</span></div>
-                        <div>Printed by <span style="font-weight: bold">{{ auth()->user()->name }}</span> on <span style="font-weight: bold">{{ date('d/m/Y') }}</span></div>
+                        <div>Done by <span style="font-weight: bold">{{ $doneBy }}</span> on <span
+                                style="font-weight: bold">{{ date('d/m/Y', strtotime( $record->payments()->count() > 0 ?
+                                $record->payments()->latest()?->first()?->created_at :
+                                $record->charges()->latest()?->first()?->created_at)) }}</span></div>
+                        <div>Printed by <span style="font-weight: bold">{{ auth()->user()->name }}</span> on <span
+                                style="font-weight: bold">{{ date('d/m/Y') }}</span></div>
                     </div>
                 </x-filament::card>
             </div>

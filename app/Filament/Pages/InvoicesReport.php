@@ -314,7 +314,7 @@ class InvoicesReport extends Page implements HasTable
 
     public function export()
     {
-        return Excel::download(new InvoicesExport('OPD', $this->tableFilters), 'invoices.xlsx');
+        return Excel::download(new InvoicesExport($this->tableFilters), 'invoices.xlsx');
     }
 
     protected function getTableRecordsPerPageSelectOptions(): array
