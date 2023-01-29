@@ -54,12 +54,11 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
         $chargeTypes = ChargeType::all();
 
         $number = 0;
-
-        if ($this->insuranceId == 5) {
-            foreach ($invoices as $invoice) {
+        foreach ($invoices as $invoice) {
+            $number += 1;
+            $invoice->number = $number;
+            if ($this->insuranceId == 5) {
                 $invoice->numberOfRows = 1;
-                $number += 1;
-                $invoice->number = $number;
                 foreach ($chargeTypes as $chargeType) {
                     $count = $invoice->charges()->whereRelation('charge', fn (Builder $query) => $query->whereRelation('chargeListChargeType', 'charge_type_id', $chargeType->id))->count();
                     if ($count > $invoice->numberOfRows) {
@@ -203,6 +202,7 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
                 $array[] = $subArray;
             }
         } else if ($this->insuranceId == 4) {
+            $array[] = $invoice->number;
             $array[] = $invoice->session->date;
             $array[] = "40440006/" . $invoice->specific_data['voucher_number'] . "/" . substr($invoice->session->date, 2, 2);
             $array[] = $invoice->session->fileInsurance->specific_data['member_number'];
@@ -262,6 +262,7 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
         $headings = [];
         if ($this->insuranceId == 5) {
             $headings = [
+                'No',
                 'DATE',
                 'DEPARTMENT',
                 'Affiliation No',
@@ -296,6 +297,7 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
             ];
         } else if ($this->insuranceId == 4) {
             $headings = [
+                'No',
                 'Date',
                 'Voucher Identification',
                 "Beneficiary's Affiliation No",
