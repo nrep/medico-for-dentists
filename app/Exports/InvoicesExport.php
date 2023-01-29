@@ -204,7 +204,7 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
         } else if ($this->insuranceId == 4) {
             $array[] = $invoice->number;
             $array[] = $invoice->session->date;
-            $array[] = "40440006/" . $invoice->specific_data['voucher_number'] . "/" . substr($invoice->session->date, 2, 2);
+            $array[] = "40440006/" . $invoice->specific_data?['voucher_number'] . "/" . substr($invoice->session->date, 2, 2);
             $array[] = $invoice->session->fileInsurance->specific_data['member_number'];
             $array[] = $invoice->session->fileInsurance->file->year_of_birth;
             $array[] = $invoice->session->fileInsurance->file->sex;
