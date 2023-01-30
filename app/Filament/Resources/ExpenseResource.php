@@ -169,6 +169,14 @@ class ExpenseResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('amount')
                     ->getStateUsing(fn (Expense $record) => $record->items()->sum('amount')),
+                Tables\Columns\TagsColumn::make('items.line.name')
+                    ->getStateUsing(function (Expense $record) {
+                        $budgetLines = $record->items()->pluck('budget_line_id')->toArray();
+                        $budgetLines1 = BudgetLine::whereIn('id', $budgetLines)->pluck('name')->toArray();
+                        // Join using a comma
+                        return implode(', ', $budgetLines1);
+                    })
+                    ->separator(','),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
