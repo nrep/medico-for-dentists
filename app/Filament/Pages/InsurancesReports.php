@@ -248,13 +248,13 @@ class InsurancesReports extends Page implements HasTable
                 ];
             } else if ($this->insurance_id == 7) {
                 $columns = [
-                    TextColumn::make('session.fileInsurance.file.specific_data.scheme_name')
+                    TextColumn::make('session.fileInsurance.specific_data.scheme_name')
                         ->label('Scheme Name')
                         ->sortable(),
                     TextColumn::make('session.fileInsurance.specific_data.police_number')
                         ->label('Smart Card Number')
                         ->sortable(),
-                    TextColumn::make('session.fileInsurance.specific_data.invoice_number')
+                    TextColumn::make('specific_data.invoice_number')
                         ->label('Claim Form Number/Invoice Number')
                         ->sortable(),
                     TextColumn::make('session.fileInsurance.file.specific_data.last_name')
@@ -756,35 +756,48 @@ class InsurancesReports extends Page implements HasTable
         ];
     }
 
-    public function export()
+    public function export($insuranceId = 5)
     {
-        if ($this->insurance_id) {
-            return Excel::download(new InvoicesExport($this->tableFilters, $this->insurance_id), 'invoices.xlsx');    
+        $insurance = Insurance::find($insuranceId);
+
+        $month = "";
+
+        if ($this->tableFilters['period']['period'] == 'monthly') {
+            $month = Carbon::parse($this->tableFilters['period']['since'])->monthName;
         }
-        return Excel::download(new InvoicesExport($this->tableFilters), 'invoices.xlsx');
+
+        return Excel::download(new InvoicesExport($this->tableFilters, $insuranceId), "{$insurance->name} {$month} Monthly Report.xlsx");
     }
 
     public function exportIPD()
     {
-        return Excel::download(new InvoicesExport($this->tableFilters, 5, "IPD"), 'invoices.xlsx');
+        $month = "";
+
+        if ($this->tableFilters['period']['period'] == 'monthly') {
+            $month = Carbon::parse($this->tableFilters['period']['since'])->monthName;
+        }
+
+        return Excel::download(new InvoicesExport($this->tableFilters, 5, "IPD"), "IPD MMI {$month} Monthly Report.xlsx");
     }
 
     protected function getTableActions(): array
     {
         $actions = [];
         if (!$this->insurance_id) {
-            $actions[] = ActionGroup::make([
-                Action::make('Export OPD')
-                    ->label('Export OPD')
-                    ->action('export')
+            $actions = [
+                Action::make('export')
+                    ->label(fn ($record) => $record?->id == 5 ? 'Export OPD' : 'Export')
+                    ->action(fn ($record) => $this->export($record?->id))
                     ->icon('heroicon-s-download')
-                    ->hidden(fn (Model $record) => $record?->id !== 5),
-                Action::make('Export IPD')
-                    ->label('Export IPD')
-                    ->action('exportIPD')
-                    ->icon('heroicon-s-download')
-                    ->hidden(fn (Model $record) => $record?->id !== 5)
-            ]);
+                    ->hidden(fn (Model $record) => $record?->id !== 5 && $record?->id !== 4 && $record?->id !== 6 && $record?->id !== 9 && $record?->id !== 7),
+                ActionGroup::make([
+                    Action::make('Export IPD')
+                        ->label('Export IPD')
+                        ->action('exportIPD')
+                        ->icon('heroicon-s-download')
+                        ->hidden(fn (Model $record) => $record?->id !== 5)
+                ])
+            ];
         }
         return $actions;
     }
@@ -795,10 +808,10 @@ class InsurancesReports extends Page implements HasTable
             Pages\Actions\Action::make('Export')
                 ->label('Export')
                 ->action(function () {
-                    return $this->export();
+                    return $this->export($this->insurance_id);
                 })
                 ->icon('heroicon-s-download')
-                ->hidden(fn () => $this->insurance_id !== 4),
+                ->hidden(fn () => $this->insurance_id !== 4 && $this->insurance_id !== 6 && $this->insurance_id !== 9 && $this->insurance_id !== 7),
         ];
     }
 }

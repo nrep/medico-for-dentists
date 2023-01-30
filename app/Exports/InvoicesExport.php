@@ -75,6 +75,9 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
     {
         $array = [];
 
+        $total = $invoice->charges()
+            ->sum('total_price');
+
         if ($this->insuranceId == 5) {
             for ($i = 0; $i < $invoice->numberOfRows; $i++) {
                 $subArray = [];
@@ -246,12 +249,97 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
                     return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
                 })
                 ->sum('total_price');
-
-            $total = $invoice->charges()
-                ->sum('total_price');
-
             $array[] = $total;
             $array[] = $total > 0 ? round($total * ($invoice?->discount->discount > 0 ? $invoice?->discount->discount / 100 : $invoice?->discount->discount)) : 0;
+        } else if ($this->insuranceId == 6 || $this->insuranceId == 9) {
+            $array[] = $invoice->number;
+            $array[] = $invoice->session->date;
+            $array[] = $invoice->session->fileInsurance->specific_data['police_number'];
+            $array[] = $invoice->session->fileInsurance->specific_data['affiliation_number'];
+            $array[] = $invoice->session->fileInsurance->file->names;
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                        return $query->whereNotIn('charge_type_id', [1, 2, 5, 3]);
+                    });
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                })
+                ->sum('total_price');
+            $array[] = $total;
+            $array[] = round($total * ($invoice?->discount->discount > 0 ? $invoice?->discount->discount / 100 : $invoice?->discount->discount));
+        } else if ($this->insuranceId == 7) {
+            $array[] = $invoice->number;
+            $array[] = $invoice->session->fileInsurance->specific_data['scheme_name'] ?? "";
+            $array[] = $invoice->session->fileInsurance->specific_data['police_number'] ?? "";
+            $array[] = $invoice->specific_data['invoice_number'] ?? "";
+            $array[] = $invoice->session->fileInsurance->file->specific_data['last_name'] ?? "";
+            $array[] = $invoice->session->fileInsurance->file->specific_data['first_name'] ?? "";
+            $array[] = $invoice->session->date;
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 1);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 2);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 3);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 28);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', function (Builder $query) {
+                        return $query->whereNotIn('charge_type_id', [1, 2, 28, 4, 5]);
+                    });
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 4);
+                })
+                ->sum('total_price');
+            $array[] = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                })
+                ->sum('total_price');
+            $hospitalizationCost = $invoice->charges()
+                ->whereRelation('charge', function (Builder $query) {
+                    return $query->whereRelation('chargeListChargeType', 'charge_type_id', 5);
+                })
+                ->sum('total_price');
+            $array[] = $hospitalizationCost > 0 ? 'IPD' : 'OPD';
+            $array[] = $total;
+            $array[] = round($total * ($invoice?->discount->insured_pays != 100 ? $invoice?->discount->insured_pays / 100 : $invoice?->discount->insured_pays));
+            $array[] = round($total * ($invoice?->discount->discount > 0 ? $invoice?->discount->discount / 100 : $invoice?->discount->discount));
         }
 
         return $array;
@@ -314,6 +402,42 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
                 'Cost For Medicines 100%',
                 'Total Amount 100%',
                 'Total Amount 85%'
+            ];
+        } else if ($this->insuranceId == 6 || $this->insuranceId == 9) {
+            $headings = [
+                'No',
+                'Date',
+                'No Police',
+                'No Carte',
+                'Nom et Prenom Du Malade',
+                'Cons. 100%',
+                'Examen Comp. 100%',
+                'Hosp. 100%',
+                'Acte Et Mater 100%',
+                'Medic 100%',
+                'Total 100%',
+                'A Payer Par SORAS'
+            ];
+        } else if ($this->insuranceId == 7) {
+            $headings = [
+                'No',
+                'Scheme Name',
+                'Smart Card Number',
+                'Claim Form Number/Invoice Number',
+                'Last Name',
+                'First Name',
+                'Treatment Date',
+                'Consultation',
+                'Lab Tests',
+                'Drugs',
+                'Imaging',
+                'Procedures',
+                'Consumables',
+                'Bed Charges',
+                'Benefit Type(OP, IP, MAT)',
+                'Gross Amount',
+                'Copay',
+                'Payable by BRITAM'
             ];
         }
 
