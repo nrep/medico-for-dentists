@@ -56,8 +56,10 @@ class InsurancesReports extends Page implements HasTable
         if ($this->insurance_id) {
             return Invoice::query()
                 ->whereRelation('session', function (Builder $query) {
-                    return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id);
-                });
+                    return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id)
+                        ->orderBy('date', 'ASC');
+                })
+                ->orderBy('id', 'ASC');
         } else {
             return Insurance::query();
         }
