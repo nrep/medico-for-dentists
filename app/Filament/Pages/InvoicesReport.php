@@ -84,6 +84,10 @@ class InvoicesReport extends Page implements HasTable
                 ->searchable()
                 ->sortable()
                 ->formatStateUsing(fn ($state) => "PROV-" . sprintf("%06d", $state)),
+            TextColumn::make('invoice.session.date')
+                ->label('Date')
+                ->searchable()
+                ->sortable(),
             TextColumn::make('invoice.session.fileInsurance.file.number')
                 ->formatStateUsing(fn (InvoicePayment $record) => sprintf("%04d", $record->invoice->session->fileInsurance->file->number) . "/" . $record->invoice->session->fileInsurance->file->registration_year)
                 ->label('File number')
@@ -91,6 +95,16 @@ class InvoicesReport extends Page implements HasTable
                 ->sortable(),
             TextColumn::make('invoice.session.fileInsurance.file.names')
                 ->label('Patient Names')
+                ->searchable()
+                ->sortable()
+                ->wrap(),
+            TextColumn::make('invoice.session.fileInsurance.file.year_of_birth')
+                ->label('Year of Birth')
+                ->searchable()
+                ->sortable()
+                ->wrap(),
+            TextColumn::make('invoice.session.fileInsurance.file.sex')
+                ->label('Sex')
                 ->searchable()
                 ->sortable()
                 ->wrap(),
