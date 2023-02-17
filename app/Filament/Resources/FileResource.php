@@ -83,14 +83,28 @@ class FileResource extends Resource
                             ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
                                 $set('full_number', sprintf("%05d", $state) . "/" . $get('registration_year'));
                             }),
-                        TextInput::make('registration_year')
+                        Select::make('registration_year')
                             ->label('Year')
-                            ->numeric()
+                            ->options([
+                                "2009" => "2009",
+                                "2010" => "2010",
+                                "2011" => "2011",
+                                "2012" => "2012",
+                                "2013" => "2013",
+                                "2014" => "2014",
+                                "2015" => "2015",
+                                "2016" => "2016",
+                                "2017" => "2017",
+                                "2018" => "2018",
+                                "2019" => "2019",
+                                "2020" => "2020",
+                                "2021" => "2021",
+                                "2022" => "2022",
+                                "2023" => "2023"
+                            ])
                             ->required()
-                            ->length(4)
                             ->reactive()
-                            ->disableAutocomplete()
-                            ->mask(fn (TextInput\Mask $mask) => $mask->pattern('0000'))
+                            ->searchable()
                             ->afterStateUpdated(function (Closure $get, Closure $set, $state, $context, $record) {
                                 $set('full_number', sprintf("%05d", $get('number')) . "/" . $state);
                             }),
@@ -188,7 +202,7 @@ class FileResource extends Resource
                                     ->searchable()
                                     ->reactive()
                                     ->columnSpan(function (Closure $get) {
-                                        if ($get('insurance_id') == null || $get('insurance_id') == 3) {
+                                        if ($get('insurance_id') == null || $get('insurance_id') == 3 || $get('insurance_id') == 7) {
                                             return 3;
                                         } else if ($get('insurance_id') == 4 || $get('insurance_id') == 10 || $get('insurance_id') == 11 || $get('insurance_id') == 13 || $get('insurance_id') == 14 || $get('insurance_id') == 15) {
                                             return 2;
@@ -258,6 +272,16 @@ class FileResource extends Resource
                                         return $get('insurance_id') != 8;
                                     }),
                                 TextInput::make('specific_data.scheme_name')
+                                    ->required()
+                                    ->hidden(function (Closure $get) {
+                                        return $get('insurance_id') != 7;
+                                    }),
+                                TextInput::make('specific_data.first_name')
+                                    ->required()
+                                    ->hidden(function (Closure $get) {
+                                        return $get('insurance_id') != 7;
+                                    }),
+                                TextInput::make('specific_data.last_name')
                                     ->required()
                                     ->hidden(function (Closure $get) {
                                         return $get('insurance_id') != 7;
@@ -353,7 +377,12 @@ class FileResource extends Resource
             ->actions([
                 Action::make('receive')
                     ->icon('heroicon-o-arrow-right')
-                    ->action(function (array $data): void {
+                    ->action(function (array $data, File $record): void {
+                        $fileInsurance = FileInsurance::find($data['file_insurance_id'])?->insurance;
+                        if ($fileInsurance?->id == 7 && isset($data['specific_data'])) {
+                            $fileInsurance->specific_data = $data;
+                            $fileInsurance->save();
+                        }
                         Session::create(array_merge($data, ['done_by' => auth()->user()->id]));
                     })
                     ->form(function (File $record) {
@@ -363,73 +392,70 @@ class FileResource extends Resource
                                     DatePicker::make('date')
                                         ->required()
                                         ->maxDate(Carbon::now())
-                                        ->default(Carbon::now()),
+                                        ->default(Carbon::now())
+                                        ->columnSpan(2),
                                     Select::make('file_insurance_id')
                                         ->label('Insurance')
                                         ->options($record->linkedInsurances->pluck('insurance.name', 'id'))
                                         ->searchable()
                                         ->required()
                                         ->default($record->linkedInsurances()->first()->id)
-                                        ->reactive(),
-                                    /* Select::make('discount_id')
-                                        ->label('Percentage to be paid (T.M)')
-                                        ->options(function (callable $get) {
-                                            if ($get('file_insurance_id')) {
-                                                return FileInsurance::find($get('file_insurance_id'))
-                                                    ->insurance
-                                                    ->discounts()
-                                                    ->pluck('display_name', 'id');
-                                            }
-                                            return [];
-                                        })
-                                        ->default($record->linkedInsurances()->first()->insurance->discounts()->first()->id)
-                                        ->required(true),
-                                    TextInput::make('specific_data.voucher_number')
-                                        ->prefix("40440006/")
-                                        ->suffix("/" . date('y'))
-                                        ->hidden(function (Closure $get) {
-                                            $bool = true;
-                                            if ($get('file_insurance_id')) {
-                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
-                                                if ($insurance->id == 4) {
-                                                    $bool = false;
-                                                }
-                                            }
-                                            return $bool;
-                                        })
+                                        ->reactive()
+                                        ->columnSpan(2),
+                                    TextInput::make('specific_data.first_name')
                                         ->required(function (Closure $get) {
-                                            $bool = false;
                                             if ($get('file_insurance_id')) {
                                                 $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
-                                                if ($insurance->id == 4) {
-                                                    $bool = true;
+                                                if ($insurance->id == 7) {
+                                                    return true;
                                                 }
                                             }
-                                            return $bool;
+                                        })
+                                        ->hidden(function (Closure $get) {
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id != 7) {
+                                                    return true;
+                                                }
+                                            }
                                         }),
-                                    TextInput::make('specific_data.invoice_number')
-                                        ->hidden(function (Closure $get) {
-                                            $bool = true;
-                                            if ($get('file_insurance_id')) {
-                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
-                                                if ($insurance->id == 7) {
-                                                    $bool = false;
-                                                }
-                                            }
-                                            return $bool;
-                                        })
+                                    TextInput::make('specific_data.last_name')
                                         ->required(function (Closure $get) {
-                                            $bool = false;
                                             if ($get('file_insurance_id')) {
                                                 $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
                                                 if ($insurance->id == 7) {
-                                                    $bool = true;
+                                                    return true;
                                                 }
                                             }
-                                            return $bool;
-                                        }) */
+                                        })
+                                        ->hidden(function (Closure $get) {
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id != 7) {
+                                                    return true;
+                                                }
+                                            }
+                                        }),
+                                    TextInput::make('specific_data.scheme_name')
+                                        ->required(function (Closure $get) {
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id == 7) {
+                                                    return true;
+                                                }
+                                            }
+                                        })
+                                        ->hidden(function (Closure $get) {
+                                            if ($get('file_insurance_id')) {
+                                                $insurance = FileInsurance::find($get('file_insurance_id'))->insurance;
+                                                if ($insurance->id != 7) {
+                                                    return true;
+                                                }
+                                            }
+                                        })
+                                        ->columnSpan(2),
                                 ])
-                                ->columns(2)
+                                ->columns(4)
                         ];
                     }),
                 Tables\Actions\EditAction::make(),
