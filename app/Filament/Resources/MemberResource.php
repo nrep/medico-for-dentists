@@ -22,9 +22,9 @@ class MemberResource extends Resource
 
     // protected static ?string $navigationIcon = 'heroicon-o-collection';
 
-    protected static ?string $recordTitleAttribute = 'nom';
+    // protected static ?string $recordTitleAttribute = 'nom';
 
-    public static function getGlobalSearchResultDetails(Model $record): array
+    /* public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
             'File' => $record->dossier,
@@ -46,7 +46,7 @@ class MemberResource extends Resource
                 ->icon('heroicon-s-pencil')
                 ->url(static::getUrl('edit', ['record' => $record])),
         ];
-    }
+    } */
 
     public static function form(Form $form): Form
     {

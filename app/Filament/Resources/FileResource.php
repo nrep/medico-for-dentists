@@ -26,6 +26,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\GlobalSearch\Actions\Action as ActionsAction;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
@@ -67,8 +68,8 @@ class FileResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         $insurances = "";
-        
-        foreach($record->linkedInsurances() as $key => $linkedInsurance) {
+
+        foreach ($record->linkedInsurances() as $key => $linkedInsurance) {
             $insurances .= $linkedInsurance?->insurance->name;
             if ($key != count($record->linkedInsurances())) {
                 $insurances .= ', ';
@@ -80,6 +81,11 @@ class FileResource extends Resource
             'Phone Number' => $record->phone_number,
             'Insurance' => $insurances
         ];
+    }
+
+    public static function getGlobalSearchResultUrl(Model $record): string
+    {
+        return FileResource::getUrl('view', ['record' => $record]);
     }
 
     public static function form(Form $form): Form
