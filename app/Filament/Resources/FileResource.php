@@ -64,6 +64,24 @@ class FileResource extends Resource
         return ['number', 'names', 'phone_number', 'emergencyContacts.name', 'emergencyContacts.phone_number'];
     }
 
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $insurances = "";
+        
+        foreach($record->linkedInsurances() as $key => $linkedInsurance) {
+            $insurances .= $linkedInsurance?->insurance->name;
+            if ($key != count($record->linkedInsurances())) {
+                $insurances .= ', ';
+            }
+        }
+
+        return [
+            'File Number' => sprintf("%05d", $record->number) . "/" . $record->registration_year,
+            'Phone Number' => $record->phone_number,
+            'Insurance' => $insurances
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
