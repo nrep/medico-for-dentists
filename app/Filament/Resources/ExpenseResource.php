@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Exports\ExpensesExport;
 use App\Filament\Resources\ExpenseResource\Pages\CreateExpense;
 use App\Filament\Resources\ExpenseResource\Pages\EditExpense;
 use App\Filament\Resources\ExpenseResource\Pages\ListExpenses;
@@ -24,8 +25,10 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 
 class ExpenseResource extends Resource
@@ -65,7 +68,8 @@ class ExpenseResource extends Resource
                             ->reactive(),
                         Forms\Components\TextInput::make('bill_no')
                             ->label('Bill Number')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->unique(),
                         Forms\Components\MorphToSelect::make('expenseable')
                             ->types([
                                 Type::make(Employee::class)->titleColumnName('names'),
@@ -91,7 +95,9 @@ class ExpenseResource extends Resource
                                 Forms\Components\TextInput::make('reason')
                                     ->maxLength(255)
                                     ->required()
-                                    ->columnSpan(2),
+                                    ->columnSpan(2)
+                                    ->reactive()
+                                    ->autocomplete(),
                                 Forms\Components\Select::make('budget_line_id')
                                     ->label('Budget Line')
                                     ->options(function ($livewire) {
@@ -177,6 +183,7 @@ class ExpenseResource extends Resource
                         return implode(', ', $budgetLines1);
                     })
                     ->separator(','),
+                Tables\Columns\TagsColumn::make('items.ebm_bill_number')
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -186,7 +193,9 @@ class ExpenseResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                ExportBulkAction::make(),
+                BulkAction::make('export')
+                    ->action(fn ($records) => Excel::download(new ExpensesExport($records), "Expenses Report.xlsx")),
+                // ExportBulkAction::make(),
                 Tables\Actions\DeleteBulkAction::make(),
                 Tables\Actions\ForceDeleteBulkAction::make(),
                 Tables\Actions\RestoreBulkAction::make(),
