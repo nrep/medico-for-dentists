@@ -183,7 +183,7 @@ class ExpenseResource extends Resource
                         return implode(', ', $budgetLines1);
                     })
                     ->separator(','),
-                Tables\Columns\TagsColumn::make('items.reasons'),
+                Tables\Columns\TagsColumn::make('items.reason'),
                 Tables\Columns\TagsColumn::make('items.ebm_bill_number')
             ])
             ->filters([
