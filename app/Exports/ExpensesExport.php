@@ -42,7 +42,8 @@ class ExpensesExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
             'Date',
             'Amount',
             'Line',
-            'EBM'
+            'Reasons',
+            'EBM',
         ];
 
         return $array;
@@ -57,22 +58,28 @@ class ExpensesExport implements FromCollection, ShouldAutoSize, WithHeadings, Wi
         $map[] = $expense->paymentMean->name;
         $map[] = $expense->expenseable?->names ?? $expense->expenseable?->name;
         $map[] = $expense->date;
-        $map[] = $expense->amount;
         
         $budgetLines = "";
         $ebmNumbers = "";
+        $amount = 0;
+        $reasons = "";
 
         foreach ($expense->items as $key => $item) {
             $budgetLines .= $item->line->name;
             $ebmNumbers .= $item->ebm_bill_number;
+            $amount += $item->amount;
+            $reasons .= $item->reason;
 
             if ($key != count($expense->items) - 1) {
                 $budgetLines .= ', ';
                 $ebmNumbers .= ', ';
+                $reasons .= ', ';
             }
         }
 
+        $map[] = $amount;
         $map[] = $budgetLines;
+        $map[] = $reasons;
         $map[] = $ebmNumbers;
 
         return $map;
