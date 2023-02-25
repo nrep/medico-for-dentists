@@ -176,6 +176,7 @@ class ExpenseResource extends Resource
                 Tables\Columns\TextColumn::make('amount')
                     ->getStateUsing(fn (Expense $record) => $record->items()->sum('amount')),
                 Tables\Columns\TagsColumn::make('items.line.name')
+                    ->label('Budget Line')
                     ->getStateUsing(function (Expense $record) {
                         $budgetLines = $record->items()->pluck('budget_line_id')->toArray();
                         $budgetLines1 = BudgetLine::whereIn('id', $budgetLines)->pluck('name')->toArray();
@@ -183,8 +184,10 @@ class ExpenseResource extends Resource
                         return implode(', ', $budgetLines1);
                     })
                     ->separator(','),
-                Tables\Columns\TagsColumn::make('items.reason'),
+                Tables\Columns\TagsColumn::make('items.reason')
+                    ->label('Reasons'),
                 Tables\Columns\TagsColumn::make('items.ebm_bill_number')
+                    ->label('EBM Bill Number')
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
