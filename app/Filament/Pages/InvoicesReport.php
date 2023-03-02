@@ -303,7 +303,9 @@ class InvoicesReport extends Page implements HasTable
                         ->options(Employee::whereRelation(
                             'categories',
                             fn (Builder $query) => $query->whereRelation('category', 'name', 'Doctor')
-                        )->get()->pluck('names', 'id'))
+                        )
+                        ->whereRelation('days', fn (Builder $query) => $query->where('number', 1))
+                        ->get()->pluck('names', 'id'))
                         ->searchable(),
                 ])
                 ->indicateUsing(function (array $data): ?string {
@@ -317,7 +319,7 @@ class InvoicesReport extends Page implements HasTable
                     if (isset($data['doctor_id'])) {
                         $query->whereRelation(
                             'invoice',
-                            fn (Builder $query) => $query->whereRelation('days', 'doctor_id', $data['doctor_id'])
+                            fn (Builder $query) => $query->whereRelation('days', fn (Builder $query) => $query->where('doctor_id', $data['doctor_id'])->where('number', 1))
                         );
                     }
                     return $query;
