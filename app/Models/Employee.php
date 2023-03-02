@@ -27,4 +27,9 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeeEmployeeCategory::class);
     }
+
+    public function days()
+    {
+        return $this->hasMany(InvoiceDay::class, 'doctor_id');
+    }
 }

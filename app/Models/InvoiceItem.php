@@ -38,4 +38,14 @@ class InvoiceItem extends Model
     {
         return $this->belongsTo(User::class, 'done_by');
     }
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
+    public function day()
+    {
+        return $this->belongsTo(InvoiceDay::class, 'invoice_day_id');
+    }
 }
