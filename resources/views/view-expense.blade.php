@@ -10,7 +10,7 @@
     @endphp
 
     @if (!$this->hasCombinedRelationManagerTabsWithForm() || !count($relationManagers))
-    <div style="width: 50%" id="print-js">
+    <div style="width: 100%" id="print-js">
         <x-filament::card>
             <div>REPUBLIQUE DU RWANDA</div>
             <div>MINISTERE DE LA SANTE</div>
@@ -162,7 +162,7 @@
             }); */
 
             $('#print-js').printThis({
-                importCSS: false,
+                importCSS: true,
                 loadCSS: "/print.min.css",
             });
         })
