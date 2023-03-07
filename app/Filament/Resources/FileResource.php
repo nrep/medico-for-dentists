@@ -407,6 +407,7 @@ class FileResource extends Resource
                             $fileInsurance->specific_data = $data['specific_data'];
                             $fileInsurance->save();
                         }
+                        unset($data['specific_data']);
                         Session::create(array_merge($data, ['done_by' => auth()->user()->id]));
                     })
                     ->form(function (File $record) {
