@@ -379,16 +379,6 @@ class InvoiceResource extends Resource
                     TextInput::make('sold_at')
                         ->numeric()
                         ->extraInputAttributes(["readonly" => "true"]),
-                    /* ->mask(
-                                        fn (Mask $mask) => $mask
-                                            ->patternBlocks([
-                                                'money' => fn (Mask $mask) => $mask
-                                                    ->numeric()
-                                                    ->thousandsSeparator(',')
-                                                    ->decimalSeparator('.'),
-                                            ])
-                                            ->pattern('FRw money'),
-                                    ), */
                     TextInput::make('quantity')
                         ->numeric()
                         ->reactive()
@@ -399,16 +389,6 @@ class InvoiceResource extends Resource
                     TextInput::make('total_price')
                         ->numeric()
                         ->disabled()
-                    /* ->mask(
-                                        fn (Mask $mask) => $mask
-                                            ->patternBlocks([
-                                                'money' => fn (Mask $mask) => $mask
-                                                    ->numeric()
-                                                    ->thousandsSeparator(',')
-                                                    ->decimalSeparator('.'),
-                                            ])
-                                            ->pattern('FRw money'),
-                                    ) */
                 ])
                 ->columns(6)
                 ->columnSpan(2)
