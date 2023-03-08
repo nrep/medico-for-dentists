@@ -1,10 +1,12 @@
 <?php
 
+use App\Imports\ChargeImport;
 use App\Models\InvoicePayment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +21,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::get('/import-charges', function (Request $request) {
+    Excel::import(new ChargeImport, 'BRITAM.xlsx');
 });
