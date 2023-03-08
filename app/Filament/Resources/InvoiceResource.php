@@ -327,11 +327,12 @@ class InvoiceResource extends Resource
                         ->label('Charge')
                         ->options(function ($livewire) {
                             return Charge::whereRelation('chargeListChargeType', function (Builder $query) use ($livewire) {
-                                return $query->whereRelation('chargeList', function (Builder $query) use ($livewire) {
-                                    return $query->whereRelation('linkedInsurances', function (Builder $query) use ($livewire) {
-                                        return $query->whereRelation('insurance', 'id', $livewire?->session?->fileInsurance->insurance_id);
+                                return $query->enabled()
+                                    ->whereRelation('chargeList', function (Builder $query) use ($livewire) {
+                                        return $query->whereRelation('linkedInsurances', function (Builder $query) use ($livewire) {
+                                            return $query->whereRelation('insurance', 'id', $livewire?->session?->fileInsurance->insurance_id);
+                                        });
                                     });
-                                });
                             })
                                 ->pluck('name', 'id');
                         })
@@ -339,16 +340,17 @@ class InvoiceResource extends Resource
                         ->searchable()
                         ->getSearchResultsUsing(function (string $search) {
                             return Charge::whereRelation('chargeListChargeType', function (Builder $query) {
-                                return $query->whereRelation('chargeList', function (Builder $query) {
-                                    return $query->whereRelation('linkedInsurances', function (Builder $query) {
-                                        $insuranceId = Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id;
-                                        if ($insuranceId) {
-                                            return $query->whereRelation('insurance', 'id', $insuranceId);
-                                        } else {
-                                            return $query;
-                                        }
+                                return $query->enabled()
+                                    ->whereRelation('chargeList', function (Builder $query) {
+                                        return $query->whereRelation('linkedInsurances', function (Builder $query) {
+                                            $insuranceId = Session::find(request()->json()->get('serverMemo')['data']['data']['session_id'])->fileInsurance->insurance_id;
+                                            if ($insuranceId) {
+                                                return $query->whereRelation('insurance', 'id', $insuranceId);
+                                            } else {
+                                                return $query;
+                                            }
+                                        });
                                     });
-                                });
                             })
                                 ->where('name', 'like', "%{$search}%")
                                 ->orWhere('price', 'like', "%{$search}%")
