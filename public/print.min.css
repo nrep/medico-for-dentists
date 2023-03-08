@@ -3,3 +3,7 @@ table, td, th { border: .5px solid #000; }
     font-size: 10px;
     margin-right: 3px;
 }
+
+table {
+    width: 100%;
+}

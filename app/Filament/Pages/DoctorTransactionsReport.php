@@ -2,8 +2,11 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Employee;
 use App\Models\Insurance;
 use App\Models\Invoice;
+use App\Models\InvoiceDay;
+use App\Models\InvoiceItem;
 use Carbon\Carbon;
 use Closure;
 use Filament\Forms\Components\DatePicker;
@@ -45,16 +48,25 @@ class DoctorTransactionsReport extends Page implements HasTable
 
     protected function getTableQuery(): Builder
     {
-        $query = Invoice::select(
+        $query = Employee::select(
             'employees.names',
-            DB::raw("COUNT(*) AS total"),
-            DB::raw('SUM(total_price) AS total_amount')
+            'invoice_days.doctor_id',
+            DB::raw("COUNT(invoice_days.id) AS total"),
         )
-            ->join('invoice_days', 'invoices.id', 'invoice_days.invoice_id')
-            ->join('employees', 'invoice_days.doctor_id', 'employees.id')
-            ->join('invoice_items', 'invoice_days.id', 'invoice_items.invoice_day_id')
+            ->join('invoice_days', 'employees.id', 'invoice_days.doctor_id')
             ->where('invoice_days.number', 1)
-            ->groupBy('employees.names');
+            ->groupBy(['employees.names', 'invoice_days.doctor_id']);
+        // $query = Invoice::select(
+        //     'invoice_days.doctor_id',
+        //     'employees.names',
+        //     DB::raw("COUNT(invoice_days.id) AS total"),
+        //     DB::raw('SUM(invoice_items.total_price) AS total_amount')
+        // )
+        //     ->join('invoice_days', 'invoices.id', 'invoice_days.invoice_id')
+        //     ->join('employees', 'invoice_days.doctor_id', 'employees.id')
+        //     ->join('invoice_items', 'invoice_days.id', 'invoice_items.invoice_day_id')
+        //     ->where('invoice_days.number', 1)
+        //     ->groupBy(['employees.names', 'invoice_days.doctor_id']);
         return $query;
     }
 
@@ -67,9 +79,35 @@ class DoctorTransactionsReport extends Page implements HasTable
                 ->sortable(),
             TextColumn::make('total')
                 ->label('Patients count')
+                ->getStateUsing(function (Employee $record) {
+                    return InvoiceDay::where('doctor_id', $record->doctor_id)
+                        ->where('number', 1)
+                        ->whereRelation('invoice', function (Builder $query) {
+                            return $query->whereRelation('session', function (Builder $query) {
+                                return $query->where('date', '>=', Carbon::parse($this->tableFilters['Since']['since'])->format('Y-m-d'))
+                                    ->where('date', '<=', Carbon::parse($this->tableFilters['Until']['until'])->format('Y-m-d'));
+                            });
+                        })
+                        ->count();
+                })
                 ->searchable()
                 ->sortable(),
             TextColumn::make('total_amount')
+                ->getStateUsing(function (Employee $record) {
+                    $query = InvoiceItem::whereRelation('day', function (Builder $query) use ($record) {
+                        return $query->where('doctor_id', $record->doctor_id)
+                            ->where('number', 1)
+                            ->whereRelation('invoice', function (Builder $query) {
+                                return $query->whereRelation('session', function (Builder $query) {
+                                    return $query->where('date', '>=', Carbon::parse($this->tableFilters['Since']['since'])->format('Y-m-d'))
+                                        ->where('date', '<=', Carbon::parse($this->tableFilters['Until']['until'])->format('Y-m-d'));
+                                });
+                            });
+                    })
+                        ->sum('total_price');
+
+                    return $query;
+                })
                 ->label('Total amount')
                 ->formatStateUsing(fn ($state) => "RWF " . number_format($state))
                 ->searchable()
@@ -108,7 +146,7 @@ class DoctorTransactionsReport extends Page implements HasTable
                 })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
-                    return $query->where('date', '>=', $data['date']);
+                    return $query->whereRelation('days', fn (Builder $query) => $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '>=', $data['date'])));
                 }),
             Filter::make('Until')
                 ->form([
@@ -124,7 +162,7 @@ class DoctorTransactionsReport extends Page implements HasTable
                 })
                 ->query(function (Builder $query, array $data): Builder {
                     $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
-                    return $query->where('date', '<=', $data['date']);
+                    return $query->whereRelation('days', fn (Builder $query) => $query->whereRelation('invoice', fn (Builder $query) => $query->whereRelation('session', 'date', '<=', $data['date'])));
                 }),
             Filter::make('Insurance')
                 ->form([

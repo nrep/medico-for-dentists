@@ -404,9 +404,10 @@ class FileResource extends Resource
                     ->action(function (array $data, File $record): void {
                         $fileInsurance = FileInsurance::find($data['file_insurance_id']);
                         if ($fileInsurance?->insurance->id == 7 && isset($data['specific_data'])) {
-                            $fileInsurance->specific_data = $$data['specific_data'];
+                            $fileInsurance->specific_data = $data['specific_data'];
                             $fileInsurance->save();
                         }
+                        unset($data['specific_data']);
                         Session::create(array_merge($data, ['done_by' => auth()->user()->id]));
                     })
                     ->form(function (File $record) {
