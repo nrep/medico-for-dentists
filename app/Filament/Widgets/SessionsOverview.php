@@ -73,10 +73,10 @@ class SessionsOverview extends BaseWidget
                 ])
                 ->color($this->getInvoicesData()['diff']['percentage'] > 0 ? 'primary' : 'warning'),
             Card::make('Payments', 'RWF ' . (auth()->user()->hasRole('Admin') ? number_format($payments->sum('amount')) : number_format($payments->where('done_by', auth()->id())->sum('amount'))))
-                ->description('32k increase')
+                ->description('Cash: ' . $payments->where('payment_mean_id', 1)->sum('amount') . 'RWF, MoMo: ' . $payments->where('payment_mean_id', 2)->sum('amount') . 'RWF')
                 ->descriptionIcon('heroicon-s-trending-up')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
-                ->color('secondary')
+                ->color('primary')
                 ->extraAttributes([
                     'class' => 'cursor-pointer',
                     'wire:click' => 'viewReport("invoice-payments")',
