@@ -143,7 +143,7 @@ class ChargeResource extends Resource
                     ->sortable(),
                 TagsColumn::make("insurances.name")
                     ->label("Insurance")
-                    ->getStateUsing(fn (Charge $record) => $record->chargeListChargeType->chargeList->linkedInsurances()->first()?->insurance->name)
+                    ->getStateUsing(fn (Charge $record) => $record->chargeListChargeType->chargeList?->linkedInsurances()->first()?->insurance->name)
                     ->separator(',')
             ])
             ->filters([
