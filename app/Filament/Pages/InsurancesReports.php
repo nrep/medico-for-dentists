@@ -427,7 +427,7 @@ class InsurancesReports extends Page implements HasTable
                             return round($record->charges()->sum('total_price') * ($record?->discount->discount > 0 ? $record?->discount->discount / 100 : $record?->discount->discount));
                         }),
                 ];
-            } else if ($this->insurance_id == 11) {
+            } else if ($this->insurance_id == 11 || $this->insurance_id == 18) {
                 $columns = [
                     TextColumn::make('session.date')
                         ->label('Date')
