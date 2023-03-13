@@ -228,7 +228,7 @@ class FileResource extends Resource
                                     ->columnSpan(function (Closure $get) {
                                         if ($get('insurance_id') == null || $get('insurance_id') == 3 || $get('insurance_id') == 7) {
                                             return 3;
-                                        } else if ($get('insurance_id') == 4 || $get('insurance_id') == 10 || $get('insurance_id') == 11 || $get('insurance_id') == 13 || $get('insurance_id') == 14 || $get('insurance_id') == 15) {
+                                        } else if ($get('insurance_id') == 4 || $get('insurance_id') == 10 || $get('insurance_id') == 11 || $get('insurance_id') == 13 || $get('insurance_id') == 14 || $get('insurance_id') == 15 || $get('insurance_id') == 18) {
                                             return 2;
                                         } else {
                                             return 1;
@@ -309,6 +309,13 @@ class FileResource extends Resource
                                     ->required()
                                     ->hidden(function (Closure $get) {
                                         return $get('insurance_id') != 7;
+                                    }),
+                                TextInput::make('specific_data.idno')
+                                    ->required(function (Closure $get) {
+                                        return $get('insurance_id') == 18;
+                                    })
+                                    ->hidden(function (Closure $get) {
+                                        return $get('insurance_id') != 18;
                                     }),
                                 Toggle::make('enabled')
                                     ->default(1)
