@@ -435,7 +435,12 @@ class InsurancesReports extends Page implements HasTable
                         ->sortable(),
                     TextColumn::make('session.fileInsurance.specific_data.member_number')
                         ->label('Member No')
-                        ->sortable(),
+                        ->sortable()
+                        ->hidden(fn () => $this->insurance_id == 18),
+                    TextColumn::make('session.fileInsurance.specific_data.idno')
+                        ->label('ID Number')
+                        ->sortable()
+                        ->hidden(fn () => $this->insurance_id != 18),
                     TextColumn::make('session.fileInsurance.file.names')
                         ->label('Full Name of Patient')
                         ->sortable()
