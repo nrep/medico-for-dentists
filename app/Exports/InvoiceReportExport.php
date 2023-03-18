@@ -91,13 +91,13 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
 
         $totalAmount = $insuracePays = $patientPays = 0;
 
-        foreach ($invoicePayment->invoice->charges as $key => $charge) {
+        foreach ($invoicePayment->invoice?->charges as $key => $charge) {
             $totalAmount += $charge->totalPrice;
         }
 
         if ($totalAmount > 0) {
-            $insuracePays = $totalAmount * $invoicePayment->invoice->discount->discount / 100;
-            $patientPays = $totalAmount * (100 - $invoicePayment->invoice->discount->discount) / 100;
+            $insuracePays = $totalAmount * $invoicePayment->invoice?->discount->discount / 100;
+            $patientPays = $totalAmount * (100 - $invoicePayment->invoice?->discount->discount) / 100;
         }
 
         $array[] = $totalAmount;
@@ -107,7 +107,7 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
         $array[] = round($invoicePayment->paid - $patientPays);
 
         foreach ($this->paymentMeans as $paymentMean) {
-            $array[] = $invoicePayment->invoice->payments()->where('payment_mean_id', $paymentMean->id)->sum('amount');
+            $array[] = $invoicePayment->invoice?->payments()->where('payment_mean_id', $paymentMean->id)->sum('amount');
         }
 
         return $array;
