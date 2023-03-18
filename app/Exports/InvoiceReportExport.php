@@ -83,7 +83,7 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
         $array[] = $invoicePayment->number;
         $array[] = $invoicePayment->invoice?->session?->date;
         $array[] = "PROV-" . sprintf("%06d", $invoicePayment->invoice->session_id);
-        $array[] = sprintf("%04d", $invoicePayment->invoice?->session?->fileInsurance->file->number) . "/" . $invoicePayment->invoice->session->fileInsurance->file->registration_year;
+        $array[] = sprintf("%04d", $invoicePayment->invoice?->session?->fileInsurance->file->number) . "/" . $invoicePayment->invoice?->session?->fileInsurance->file->registration_year;
         $array[] = $invoicePayment->invoice?->session?->fileInsurance->file->names;
         $array[] = $invoicePayment->invoice?->session?->fileInsurance->file->year_of_birth;
         $array[] = $invoicePayment->invoice?->session?->fileInsurance->file->sex;
