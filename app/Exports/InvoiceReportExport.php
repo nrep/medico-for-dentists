@@ -91,8 +91,10 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
 
         $totalAmount = $insuracePays = $patientPays = 0;
 
-        foreach ($invoicePayment->invoice?->charges as $key => $charge) {
-            $totalAmount += $charge->totalPrice;
+        if ($invoicePayment->invoice?->charges) {
+            foreach ($invoicePayment->invoice?->charges as $key => $charge) {
+                $totalAmount += $charge->totalPrice;
+            }
         }
 
         if ($totalAmount > 0) {
