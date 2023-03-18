@@ -138,8 +138,6 @@ class EmployeeResource extends Resource
                     ->searchable()
                     ->hidden(),
                 TextColumn::make("phone_number")
-                    ->searchable(),
-                TagsColumn::make("categories.name")
                     ->searchable()
             ])
             ->filters([
