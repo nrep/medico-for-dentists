@@ -10,7 +10,7 @@
     @endphp
 
     @if (!$this->hasCombinedRelationManagerTabsWithForm() || !count($relationManagers))
-    <div style="width: 100%; font-weight:bold;" id="print-js">
+    <div style="width: 100%; font-weight:bold; font-size:20px" id="print-js">
         <x-filament::card>
             <div>REPUBLIQUE DU RWANDA</div>
             <div>MINISTERE DE LA SANTE</div>
