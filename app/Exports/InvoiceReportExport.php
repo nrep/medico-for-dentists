@@ -53,7 +53,7 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
                 return $query->where('sessions.date', '<=', $data['date']);
             })
             ->when($this->filters['doctor'], function (Builder $query, $data) {
-                return $query->where('employees.id', '<=', $data['doctor_id']);
+                return $query->where('invoice_days.doctor_id', '<=', $data['doctor_id']);
             })
             /* ->when($this->filters['done_by'], function (Builder $query, array $data): Builder {
                 return $query->where('invoice_payments.done_by', $data['done_by']);
