@@ -12,6 +12,7 @@ use App\Models\BudgetAccount;
 use App\Models\BudgetLine;
 use App\Models\Employee;
 use App\Models\Expense;
+use App\Models\ExpenseItem;
 use App\Models\File;
 use App\Models\PaymentMean;
 use App\Models\ServiceProvider;
@@ -97,7 +98,7 @@ class ExpenseResource extends Resource
                                     ->required()
                                     ->columnSpan(2)
                                     ->reactive()
-                                    ->autocomplete(),
+                                    ->datalist(fn () => ExpenseItem::all()->pluck('reason', 'reason')),
                                 Forms\Components\Select::make('budget_line_id')
                                     ->label('Budget Line')
                                     ->options(function ($livewire) {
