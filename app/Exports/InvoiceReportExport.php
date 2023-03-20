@@ -44,6 +44,9 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
             ->join('invoices', 'invoice_payments.invoice_id', 'invoices.id')
             ->join('sessions', 'invoices.session_id', 'sessions.id')
             ->join('discounts', 'invoices.discount_id', 'discounts.id')
+            ->whereRelation('invoice', function (Builder $query) {
+                $query->whereRelation('days', 'doctor_id', $this->filters['doctor']['doctor_id']);
+            })
             ->when($this->filters['Since'], function (Builder $query, $data) {
                 $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
                 return $query->where('sessions.date', '>=', $data['date']);
@@ -52,12 +55,6 @@ class InvoiceReportExport implements FromCollection, WithMapping, ShouldAutoSize
                 $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
                 return $query->where('sessions.date', '<=', $data['date']);
             })
-            ->when($this->filters['doctor'], function (Builder $query, $data) {
-                return $query->where('invoice_days.doctor_id', '<=', $data['doctor_id']);
-            })
-            /* ->when($this->filters['done_by'], function (Builder $query, array $data): Builder {
-                return $query->where('invoice_payments.done_by', $data['done_by']);
-            }) */
             ->when($this->filters['Insurance'], function (Builder $query, array $data): Builder {
                 if ($data['insurance_id'] == null) {
                     return $query;
