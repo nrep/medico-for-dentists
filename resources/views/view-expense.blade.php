@@ -10,7 +10,7 @@
     @endphp
 
     @if (!$this->hasCombinedRelationManagerTabsWithForm() || !count($relationManagers))
-    <div style="width: 100%" id="print-js">
+    <div style="width: 100%; font-weight:bold;" id="print-js">
         <x-filament::card>
             <div>REPUBLIQUE DU RWANDA</div>
             <div>MINISTERE DE LA SANTE</div>
@@ -51,7 +51,7 @@
                     @php
                     $total = $record->items->sum('amount');
                     @endphp
-                    <tr class="bg-gray-50">
+                    <tr class="bg-gray-500/5">
                         <th colspan="2">Total</th>
                         <td>{{ $total }}</td>
                     </tr>
