@@ -12,16 +12,23 @@
     @if (!$this->hasCombinedRelationManagerTabsWithForm() || !count($relationManagers))
     <div style="width: 100%; font-weight:bold; font-size:20px" id="print-js">
         <x-filament::card>
-            <div>REPUBLIQUE DU RWANDA</div>
-            <div>MINISTERE DE LA SANTE</div>
-            <div>PROVINCE DU SUD</div>
-            <div>DISTRICT DE MUHANGA</div>
-            <div style="font-weight: bold; color: blue;">POLYCLINIQUE MEDICALE LA PROVIDENCE</div>
-            <div style="font-weight: 500; color: green;" class="mb-sm-4">E-mail: cliniquemedicalelaprovidence@gmail.com</div>
-            <div>Invoice N&deg;: PROV-{{ sprintf('%06d', $record->id) }}</div>
-            <div>Date: {{ date('d/m/Y', strtotime($record->date)) }}</div>
-            <div>Names: {{ $record->expenseable?->names ?? $record->expenseable?->name }}</div>
-
+            <div style="display:flex; flex-direction: row;">
+                <div style="flex: 1;">
+                    <div>REPUBLIQUE DU RWANDA</div>
+                    <div>MINISTERE DE LA SANTE</div>
+                    <div>PROVINCE DU SUD</div>
+                    <div>DISTRICT DE MUHANGA</div>
+                    <div style="font-weight: bold; color: blue;">POLYCLINIQUE MEDICALE LA PROVIDENCE</div>
+                    <div style="font-weight: 500; color: green;" class="mb-sm-4">E-mail: cliniquemedicalelaprovidence@gmail.com</div>
+                    <div>Invoice N&deg;: PROV-{{ sprintf('%06d', $record->id) }}</div>
+                    <div>Date: {{ date('d/m/Y', strtotime($record->date)) }}</div>
+                    <div>Names: {{ $record->expenseable?->names ?? $record->expenseable?->name }}</div>
+                </div>
+                <div>
+                    <img style="height: 180px;" src="/logo.png" alt="PMP Logo">
+                </div>
+            </div>
+            <div style="text-transform: uppercase; text-align:center;"><u>Bon de Sortie de Caisse N&deg; {{ $record->bill_no }}</u></div>
             <table class="filament-tables-table w-full text-left rtl:text-right divide-y table-auto dark:divide-gray-700">
                 <thead>
                     <tr class="bg-gray-500/5">
@@ -135,13 +142,13 @@
                         </tfoot>
                     </table>
                     @php
-                        $doneBy = "";
-                        foreach ($record->payments as $key => $payment) {
-                            $doneBy = $payment->recordedBy->name;
-                            if ($key != $record->payments()->count() - 1) {
-                                $doneBy .= ' and ';
-                            }
-                        }
+                    $doneBy = "";
+                    foreach ($record->payments as $key => $payment) {
+                    $doneBy = $payment->recordedBy->name;
+                    if ($key != $record->payments()->count() - 1) {
+                    $doneBy .= ' and ';
+                    }
+                    }
                     @endphp
                     <div class="flex justify-between">
                         <div>Done by <span style="font-weight: bold">{{ $doneBy }}</span> on <span style="font-weight: bold">{{ date('d/m/Y', strtotime( $record->payments()->count() > 0 ? $record->payments()->latest()?->first()?->created_at : $record->charges()->latest()?->first()?->created_at)) }}</span></div>
