@@ -25,4 +25,9 @@ class Debt extends Model
     {
         return $this->morphTo();
     }
+
+    public function payments()
+    {
+        return $this->hasMany(DebtPayment::class);
+    }
 }

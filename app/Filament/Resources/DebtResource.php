@@ -5,9 +5,12 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DebtResource\Pages;
 use App\Filament\Resources\DebtResource\RelationManagers;
 use App\Models\Debt;
+use App\Models\DebtPayment;
 use App\Models\File;
 use App\Models\Invoice;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Resources\Form;
@@ -46,6 +49,7 @@ class DebtResource extends Resource
                         ->reactive()
                         ->columnSpanFull(),
                     Forms\Components\TextInput::make('amount')
+                        ->numeric()
                         ->required(),
                     Forms\Components\DatePicker::make('payment_date')
                         ->required(),
@@ -86,6 +90,52 @@ class DebtResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('make_payment')
+                        ->action(function (array $data, Debt $record) {
+                            DebtPayment::create([
+                                'debt_id' => $record->id,
+                                'date' => $data['date'],
+                                'amount' => $data['amount'],
+                                'paid_by' => $data['paid_by'],
+                                'paid_to' => $data['paid_to'],
+                                'comment' => $data['comment']
+                            ]);
+
+                            if ($record->amount <= $record->payments()->sum('amount')) {
+                                $record->payment_status = 1;
+                                $record->save();
+                            }
+                        })
+                        ->form(function (Debt $record) {
+                            return [
+                                Block::make('')
+                                    ->schema([
+                                        Forms\Components\DatePicker::make('date')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('amount')
+                                            ->numeric()
+                                            ->required(),
+                                        Forms\Components\TextInput::make('paid_by')
+                                            ->required(),
+                                        Forms\Components\Select::make('paid_to')
+                                            ->options(function () {
+                                                if (auth()->user()->hasAnyRole(['Admin', 'Data Manager'])) {
+                                                    return User::all()->pluck('name', 'id');
+                                                } else {
+                                                    return [auth()->user()->id => auth()->user()->name];
+                                                }
+                                            })
+                                            ->searchable()
+                                            ->required(),
+                                        Forms\Components\Textarea::make('comment')
+                                            ->maxLength(65535)
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(2)
+                            ];
+                        }),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
