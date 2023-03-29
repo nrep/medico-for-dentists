@@ -285,7 +285,7 @@ class FileResource extends Resource
                                     })
                                     ->reactive(),
                                 TextInput::make('specific_data.police_number')
-                                    ->required()
+                                    ->required(fn (Closure $get) => $get('insurance_id') != 6)
                                     ->hidden(function (Closure $get) {
                                         return $get('insurance_id') != 6 && $get('insurance_id') != 7 && $get('insurance_id') != 9 && $get('insurance_id') != 12;
                                     }),
