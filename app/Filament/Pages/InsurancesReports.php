@@ -821,11 +821,11 @@ class InsurancesReports extends Page implements HasTable
                         return $query
                             ->when(
                                 $data['since'],
-                                fn (Builder $query, $date): Builder => $query->where('date', '>=', Carbon::parse($date)->format('Y-m-d')),
+                                fn (Builder $query, $date): Builder => $query->whereRelation('sessions', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
                             )
                             ->when(
                                 $data['until'],
-                                fn (Builder $query, $date): Builder => $query->where('date', '<=', Carbon::parse($date)->format('Y-m-d')),
+                                fn (Builder $query, $date): Builder => $query->whereRelation('sessions', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
                             );
                     }
                 }),
