@@ -45,4 +45,17 @@ class Invoice extends Model
     {
         return $this->belongsTo(Discount::class);
     }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::created(function ($invoice) {
+            $invoice->date = $invoice->session->date;
+            $invoice->save();
+        });
+    }
 }

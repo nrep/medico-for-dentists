@@ -56,9 +56,9 @@ class InsurancesReports extends Page implements HasTable
         if ($this->insurance_id) {
             return Invoice::query()
                 ->whereRelation('session', function (Builder $query) {
-                    return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id)
-                        ->orderBy('date', 'ASC');
+                    return $query->whereRelation('fileInsurance', 'insurance_id', $this->insurance_id);
                 })
+                ->orderBy('date', 'ASC')
                 ->orderBy('id', 'ASC');
         } else {
             return Insurance::query();
@@ -71,7 +71,7 @@ class InsurancesReports extends Page implements HasTable
         if ($this->insurance_id) {
             if ($this->insurance_id == 4) {
                 $columns = [
-                    TextColumn::make('session.date')
+                    TextColumn::make('date')
                         ->label('Date')
                         ->searchable()
                         ->sortable(),
@@ -811,21 +811,21 @@ class InsurancesReports extends Page implements HasTable
                         return $query
                             ->when(
                                 $data['since'],
-                                fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
+                                fn (Builder $query, $date): Builder => $query->where('date', '>=', Carbon::parse($date)->format('Y-m-d')),
                             )
                             ->when(
                                 $data['until'],
-                                fn (Builder $query, $date): Builder => $query->whereRelation('session', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
+                                fn (Builder $query, $date): Builder => $query->where('date', '<=', Carbon::parse($date)->format('Y-m-d')),
                             );
                     } else {
                         return $query
                             ->when(
                                 $data['since'],
-                                fn (Builder $query, $date): Builder => $query->whereRelation('sessions', 'date', '>=', Carbon::parse($date)->format('Y-m-d')),
+                                fn (Builder $query, $date): Builder => $query->where('date', '>=', Carbon::parse($date)->format('Y-m-d')),
                             )
                             ->when(
                                 $data['until'],
-                                fn (Builder $query, $date): Builder => $query->whereRelation('sessions', 'date', '<=', Carbon::parse($date)->format('Y-m-d')),
+                                fn (Builder $query, $date): Builder => $query->where('date', '<=', Carbon::parse($date)->format('Y-m-d')),
                             );
                     }
                 }),

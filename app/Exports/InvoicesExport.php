@@ -34,12 +34,10 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
         $department = $this->department;
         $insuranceId = $this->insuranceId;
         $invoices = Invoice::whereRelation('session', function (Builder $query) {
-            return $query->whereRelation('fileInsurance', 'insurance_id', $this->insuranceId)
-                ->whereDate('date', '>=', Carbon::parse($this->filters['period']['since'])->format('Y-m-d'))
-                ->whereDate('date', '<=', Carbon::parse($this->filters['period']['until'])->format('Y-m-d'))
-                ->orderBy('date', 'ASC')
-                ->orderBy('id', 'ASC');
+            return $query->whereRelation('fileInsurance', 'insurance_id', $this->insuranceId);
         })
+            ->whereDate('date', '>=', Carbon::parse($this->filters['period']['since'])->format('Y-m-d'))
+            ->whereDate('date', '<=', Carbon::parse($this->filters['period']['until'])->format('Y-m-d'))
             ->whereRelation('charges', function (Builder $query) use ($department, $insuranceId) {
                 return $query->whereRelation('charge', function (Builder $query) use ($department, $insuranceId) {
                     if ($insuranceId == 5) {
@@ -51,6 +49,8 @@ class InvoicesExport implements FromCollection, WithMapping, ShouldAutoSize, Wit
                     }
                 });
             })
+            ->orderBy('date', 'ASC')
+            ->orderBy('id', 'ASC')
             ->get();
 
         $chargeTypes = ChargeType::all();
