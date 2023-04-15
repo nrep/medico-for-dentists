@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\BudgetLineResource\Pages;
+namespace App\Filament\Resources\BudgetAccountTransactionResource\Pages;
 
 use App\Filament\Resources\BudgetAccountTransactionResource;
 use Filament\Pages\Actions;

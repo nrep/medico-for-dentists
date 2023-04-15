@@ -3,10 +3,10 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BudgetAccountTransactionResource\RelationManagers;
-use App\Filament\Resources\BudgetLineResource\Pages\CreateBudgetAccountTransaction;
-use App\Filament\Resources\BudgetLineResource\Pages\EditBudgetAccountTransaction;
-use App\Filament\Resources\BudgetLineResource\Pages\ListBudgetAccountTransactions;
-use App\Filament\Resources\BudgetLineResource\Pages\ViewBudgetAccountTransaction;
+use App\Filament\Resources\BudgetAccountTransactionResource\Pages\CreateBudgetAccountTransaction;
+use App\Filament\Resources\BudgetAccountTransactionResource\Pages\EditBudgetAccountTransaction;
+use App\Filament\Resources\BudgetAccountTransactionResource\Pages\ListBudgetAccountTransactions;
+use App\Filament\Resources\BudgetAccountTransactionResource\Pages\ViewBudgetAccountTransaction;
 use App\Models\BudgetAccount;
 use App\Models\BudgetAccountTransaction;
 use App\Models\BudgetSource;
