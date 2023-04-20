@@ -21,12 +21,15 @@ use Carbon\Carbon;
 use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\MorphToSelect\Type;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Maatwebsite\Excel\Facades\Excel;
@@ -39,6 +42,11 @@ class ExpenseResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-collection';
 
     protected static ?string $navigationGroup = 'Accountancy';
+
+    protected function getTableFiltersFormColumns(): int
+    {
+        return 2;
+    }
 
     public static function form(Form $form): Form
     {
@@ -191,7 +199,70 @@ class ExpenseResource extends Resource
                     ->label('EBM Bill Number')
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Filter::make('budget-line')
+                    ->form([
+                        Select::make('id')
+                            ->label("Budget Line")
+                            ->options(BudgetLine::all()->pluck('name', 'id'))
+                            ->searchable(),
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['id']) {
+                            return null;
+                        }
+
+                        return 'Budget Line: ' . BudgetLine::find($data['id'])?->name;
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return isset($data['id']) ? $query->whereRelation('items', 'budget_line_id', $data['id']) : $query;
+                    }),
+                Filter::make('reason')
+                    ->form([
+                        Select::make('reason')
+                            ->label("Reason")
+                            ->options(ExpenseItem::all()->pluck('reason', 'reason'))
+                            ->searchable(),
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['reason']) {
+                            return null;
+                        }
+
+                        return 'Reason: ' . $data['reason'];
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return isset($data['reason']) ? $query->whereRelation('items', 'reason', $data['reason']) : $query;
+                    }),
+                Filter::make('since')
+                    ->form([
+                        DatePicker::make('since')
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['since']) {
+                            return null;
+                        }
+
+                        return 'Since ' . Carbon::parse($data['since'])->toFormattedDateString();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        $data['date'] = Carbon::parse($data['since'])->format('Y-m-d');
+                        return isset($data['since']) ? $query->where('date', '>=', $data['date']) : $query;
+                    }),
+                Filter::make('until')
+                    ->form([
+                        DatePicker::make('until')
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (!$data['until']) {
+                            return null;
+                        }
+
+                        return 'Until ' . Carbon::parse($data['until'])->toFormattedDateString();
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        $data['date'] = Carbon::parse($data['until'])->format('Y-m-d');
+                        return isset($data['date']) ? $query->where('date', '<=', $data['date']) : $query;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
